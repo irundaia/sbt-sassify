@@ -1,0 +1,9 @@
+@import "_well-formed-import";
+
+.test {
+  font-size: 10px;
+
+  .hidden {
+    display: none;
+  }
+}
