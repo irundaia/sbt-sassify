@@ -4,13 +4,14 @@ import java.io.{File, FileWriter}
 
 import com.typesafe.sbt.web.incremental.OpSuccess
 import io.bit3.jsass.{Compiler, Options, OutputStyle}
+import java.util.regex.Pattern
 import play.api.libs.json._
 
 class SassCompiler(compilerSettings: CompilerSettings) {
 
   def compile(source: File, baseDirectory: File, sourceDir: File, targetDir: File): OpSuccess = {
     // Determine the source filename (relative to the source directory)
-    val fileName = source.getPath.replaceAll(sourceDir.getPath, "").replaceFirst("""\.\w+""", "")
+    val fileName = source.getPath.replaceAll(Pattern.quote(sourceDir.getPath), "").replaceFirst("""\.\w+""", "")
     def sourceWithExtn(extn: String): File = new File(s"$targetDir$fileName.$extn")
 
     // Determine target files
@@ -108,5 +109,6 @@ class SassCompiler(compilerSettings: CompilerSettings) {
 
   private def transformDependency(fileName: String, baseDir: String, sourceDir: String): String =
     // transform the dependency string to make sure that browsers can understand it
-    (baseDir + File.separator + fileName.replaceAll("""(\.\.\/|\.\.\\)""", "")).replaceFirst(sourceDir + File.separator, "")
+    (baseDir + File.separator + fileName.replaceAll("""(\.\.\/)|(\.\.\\)""", ""))
+	  .replaceFirst(Pattern.quote(sourceDir + File.separator), "")
 }
