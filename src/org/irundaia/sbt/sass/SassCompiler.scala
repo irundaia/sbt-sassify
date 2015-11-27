@@ -79,9 +79,9 @@ class SassCompiler(compilerSettings: CompilerSettings) {
 
   private def generateOptions(sourceFile: File, sourceMapFile: File): Options = {
     val compilerStyle = compilerSettings.style match {
-      case CssStyle.Minified => OutputStyle.COMPRESSED
-      case CssStyle.Maxified => OutputStyle.EXPANDED
-      case CssStyle.Sassy => OutputStyle.NESTED
+      case Minified => OutputStyle.COMPRESSED
+      case Maxified => OutputStyle.EXPANDED
+      case Sassy => OutputStyle.NESTED
     }
 
     val options = new Options

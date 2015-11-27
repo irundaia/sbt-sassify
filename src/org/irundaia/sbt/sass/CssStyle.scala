@@ -1,6 +1,7 @@
 package org.irundaia.sbt.sass
 
-object CssStyle extends Enumeration {
-  type CssStyle = Value
-  val Minified, Maxified, Sassy = Value
-}
+
+sealed trait CssStyle
+object Minified extends CssStyle
+object Maxified extends CssStyle
+object Sassy extends CssStyle

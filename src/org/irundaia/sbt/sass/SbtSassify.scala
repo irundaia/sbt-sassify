@@ -3,7 +3,6 @@ package org.irundaia.sbt.sass
 import com.typesafe.sbt.web.Import.WebKeys._
 import com.typesafe.sbt.web.SbtWeb.autoImport._
 import com.typesafe.sbt.web.{SbtWeb, incremental}
-import org.irundaia.sbt.sass.CssStyle.CssStyle
 import sbt.Keys._
 import sbt._
 
@@ -20,7 +19,7 @@ object SbtSassify extends AutoPlugin {
   import SassKeys._
 
   override lazy val buildSettings = Seq(
-    cssStyle := CssStyle.Minified,
+    cssStyle := Minified,
     generateSourceMaps := true)
 
   val baseSbtSassSettings = Seq(

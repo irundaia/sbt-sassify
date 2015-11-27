@@ -23,7 +23,7 @@ Add the irundaia sbt-plugins repository at bintray to your resolvers in `build.s
 
 Now you can include the plugin in `project/plugins.sbt` or `project/sbt-sassify.sbt` like this:
 
-    addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "0.1.1")
+    addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.0.0")
 
 ### Directory structure
 
@@ -43,11 +43,11 @@ Some options can be passed to the SASS compiler. For an overview, see below:
 Changing the settings can be done by including the following settings in your build.sbt file:
 
 ```scala
-import org.irundaia.sbt.sass.CssStyle
+import org.irundaia.sbt.sass._
 
-cssStyle := CssStyle.Maxified
+SassKeys.cssStyle := Maxified
 
-generateSourceMaps := true
+SassKeys.generateSourceMaps := true
 ```
 
 ## Versioning
