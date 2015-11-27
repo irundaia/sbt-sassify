@@ -12,3 +12,6 @@
 
 ## 1.1.0
 - When encountering an error in a Sass file, continue compilation of other files.
+
+## 1.1.1
+- Fixes incremental compilation when included files have been modified.

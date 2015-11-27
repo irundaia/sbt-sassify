@@ -61,7 +61,7 @@ class SassCompiler(compilerSettings: CompilerSettings) {
     // Output the source map in case it should be output
     Option(compiled.getSourceMap) match {
       case Some(sourceMap) =>
-        val (revisedMap, dependencies) = extractDependencies(sourceMap, baseDir, sourceDir)
+        val revisedMap = transformSourceMap(sourceMap, out.getParent, sourceDir)
 
         val mapWriter = new FileWriter(map)
 
@@ -73,7 +73,7 @@ class SassCompiler(compilerSettings: CompilerSettings) {
     // Extract the file dependencies from the source map.
     Option(compiled.getSourceMap) match {
       case Some(sourceMap) =>
-        extractDependencies(sourceMap, baseDir, sourceDir)._2
+        extractDependencies(out.getParent, sourceMap)
       case None =>
         Set[String]()
     }
@@ -100,17 +100,28 @@ class SassCompiler(compilerSettings: CompilerSettings) {
     options
   }
 
-  private def extractDependencies(originalMap: String, baseDir: String, sourceDir: String): (String, Set[String]) = {
+  private def extractDependencies(baseDir: String, originalMap: String): Set[String] = {
     val parsed = Json.parse(originalMap)
-    val transformedDependencies = (parsed \ "sources").as[Set[String]].map(transformDependency(_, baseDir, sourceDir))
-    val transformedMap =
-      parsed.as[JsObject] ++ Json.obj("sources" -> JsArray(transformedDependencies.map(JsString.apply).toSeq))
-
-    (Json.stringify(transformedMap), transformedDependencies)
+    (parsed \ "sources")
+      .as[Set[String]]
+      // Map to a file to get the canonical path because libsass does not use platform specific separators
+      // Go up one directory because we want to get out of the target folder when retrieving the full path.
+      .map(f => new File(s"""$baseDir../$f""").getCanonicalPath)
   }
 
-  private def transformDependency(fileName: String, baseDir: String, sourceDir: String): String =
-    // transform the dependency string to make sure that browsers can understand it
-    (baseDir + File.separator + fileName.replaceAll("""(\.\.\/)|(\.\.\\)""", ""))
-	  .replaceFirst(Pattern.quote(sourceDir + File.separator), "")
+  private def transformSourceMap(originalMap: String, baseDir: String, sourceDir: String): String = {
+    val parsed = Json.parse(originalMap)
+    // Use relative filenames to make sure that the bowser can find the files when they are moved
+    val transformedDependencies = extractDependencies(baseDir, originalMap).map(convertToRelativePath(_, sourceDir))
+
+    //
+    val updatedMap =
+      parsed.as[JsObject] ++
+        Json.obj("sources" -> JsArray(transformedDependencies.map(JsString.apply).toSeq))
+
+    Json.prettyPrint(updatedMap)
+  }
+
+  private def convertToRelativePath(fileName: String, sourceDir: String): String =
+    fileName.replaceFirst(Pattern.quote(sourceDir + File.separator), "") // Convert to a relative path based on the sourceDir
 }

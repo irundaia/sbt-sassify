@@ -23,7 +23,7 @@ Add the irundaia sbt-plugins repository at bintray to your resolvers in `build.s
 
 Now you can include the plugin in `project/plugins.sbt` or `project/sbt-sassify.sbt` like this:
 
-    addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.1.0")
+    addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.1.1")
 
 ### Directory structure
 
@@ -59,10 +59,7 @@ sbt-sassify uses [semantic versioning](http://semver.org). Given a version numbe
 
 ## Known limitations
 
-1. Currently, the plugin is unable to detect changes in included files. So when included files have changed, the
-including file will not be recompiled.
+1. Source maps can only reflect files in the assets folder.
 
-2. Source maps can only reflect files in the assets folder.
-
-3. Only one SASS syntax style can be used at the same time. So when compile a .scss file, one cannot include a .sass
+2. Only one SASS syntax style can be used at the same time. So when compile a .scss file, one cannot include a .sass
   file. (Well, you can, but it won't compile.)
