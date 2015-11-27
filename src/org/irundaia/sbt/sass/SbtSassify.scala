@@ -3,7 +3,7 @@ package org.irundaia.sbt.sass
 import com.typesafe.sbt.web.Import.WebKeys._
 import com.typesafe.sbt.web.SbtWeb.autoImport._
 import com.typesafe.sbt.web.incremental.{OpResult, OpFailure}
-import com.typesafe.sbt.web.{SbtWeb, incremental}
+import com.typesafe.sbt.web.{CompileProblems, SbtWeb, incremental}
 import sbt.Keys._
 import sbt._
 
@@ -56,6 +56,12 @@ object SbtSassify extends AutoPlugin {
             case Success(compResult) => compResult // Note that
             case Failure(_) => OpFailure
           }
+
+          // Report compilation problems
+          val problems = compilationResults.values.collect {
+            case Failure(e: SassCompilerException) => e.problem
+          }.toSeq
+          CompileProblems.report((reporter in sassify).value, problems)
 
           // Collect the created files
           val createdFiles: Seq[File] = compilationResults

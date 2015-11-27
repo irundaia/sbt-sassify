@@ -2,13 +2,16 @@ package org.irundaia.sbt.sass
 
 import java.io.File
 
+import com.typesafe.sbt.web.LineBasedProblem
 import io.bit3.jsass.Output
 import play.api.libs.json.{JsObject, Json}
+import xsbti.Severity
 
 import scala.io.Source
 
 class SassCompilerException(val message: String, line: Int, column: Int, lineContent: String, source: File)
   extends RuntimeException {
+  def problem = new LineBasedProblem(message, Severity.Error, line, column, lineContent, source)
 
   override def getMessage: String =
     s"""Compilation error on line $line of $source:
