@@ -2,7 +2,7 @@ package org.irundaia.sbt.sass
 
 import java.io.File
 
-import org.irundaia.sbt.sass.{CompilerSettings, SassCompilerException, SassCompiler}
+import org.irundaia.sbt.sass.compiler.{SassCompilerException, SassCompiler, CompilerSettings}
 import org.scalatest.{FunSpec, MustMatchers}
 
 import scala.io.Source

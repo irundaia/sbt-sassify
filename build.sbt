@@ -1,6 +1,6 @@
 name := "sbt-sassify"
 organization := "org.irundaia.sbt"
-version := "1.1.1"
+version := "1.2.0"
 sbtPlugin := true
 scalaVersion := "2.10.6"
 sourcesInBase := false

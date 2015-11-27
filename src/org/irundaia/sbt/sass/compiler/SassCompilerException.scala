@@ -1,4 +1,4 @@
-package org.irundaia.sbt.sass
+package org.irundaia.sbt.sass.compiler
 
 import java.io.File
 

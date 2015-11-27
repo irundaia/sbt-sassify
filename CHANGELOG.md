@@ -15,3 +15,11 @@
 
 ## 1.1.1
 - Fixes incremental compilation when included files have been modified.
+
+## 1.2.0
+- Only output source maps when it has been requested;
+- Add option to embed source file contents to the source map;
+- Add option to override the input style detection. Now it is possible to for an (non-)indented syntax regardless of the
+ extension;
+- Restructure tests;
+- Package cleanup.

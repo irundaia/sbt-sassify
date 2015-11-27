@@ -1,10 +1,11 @@
-package org.irundaia.sbt.sass
+package org.irundaia.sbt.sass.compiler
 
 import java.io.{File, FileWriter}
+import java.util.regex.Pattern
 
 import com.typesafe.sbt.web.incremental.OpSuccess
 import io.bit3.jsass.{Compiler, Options, OutputStyle}
-import java.util.regex.Pattern
+import org.irundaia.sbt.sass._
 import play.api.libs.json._
 
 import scala.util.Try

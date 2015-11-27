@@ -4,6 +4,7 @@ import com.typesafe.sbt.web.Import.WebKeys._
 import com.typesafe.sbt.web.SbtWeb.autoImport._
 import com.typesafe.sbt.web.incremental.{OpResult, OpFailure}
 import com.typesafe.sbt.web.{CompileProblems, SbtWeb, incremental}
+import org.irundaia.sbt.sass.compiler.{SassCompilerException, SassCompiler, CompilerSettings}
 import sbt.Keys._
 import sbt._
 

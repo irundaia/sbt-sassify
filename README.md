@@ -23,7 +23,7 @@ Add the irundaia sbt-plugins repository at bintray to your resolvers in `build.s
 
 Now you can include the plugin in `project/plugins.sbt` or `project/sbt-sassify.sbt` like this:
 
-    addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.1.1")
+    addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.2.0")
 
 ### Directory structure
 
