@@ -23,8 +23,8 @@ class SassCompilerTest extends FunSpec with MustMatchers {
           testMinCss must include(".test{font-size:10px")
           testMinCss must include(".test.hidden{display:none")
 
-          processOutput.size must be(1)
-          processOutput.head must include("well-formed.scss")
+          processOutput.filesRead.size must be(1)
+          processOutput.filesRead.head.getCanonicalPath must include("well-formed.scss")
         }
       }
 
@@ -44,8 +44,8 @@ class SassCompilerTest extends FunSpec with MustMatchers {
           testMinCss must include(".test{font-size:10px")
           testMinCss must include(".test.hidden{display:none")
 
-          processOutput.size must be(2)
-          processOutput.find(_.contains("_well-formed-import.scss")) must not be None
+          processOutput.filesRead.size must be(2)
+          processOutput.filesRead.map(_.getCanonicalPath).find(_.contains("_well-formed-import.scss")) must not be None
         }
       }
     }

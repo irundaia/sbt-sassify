@@ -24,23 +24,17 @@ class SassCompiler(compilerSettings: CompilerSettings) {
     targetCss.getParentFile.mkdirs()
 
     // Compile the sources, and get the dependencies
-    val dependencies =
-      Try(doCompile(
-        source,
-        targetCss,
-        targetCssMap,
-        baseDirectory.getAbsolutePath,
-        source.getParent
-      ))
-
-    val readFiles = dependencies.map(_.map(new File(_)) + source)
-
-    // Return which files have been read/written
-    readFiles.map(files => OpSuccess(files, Set(targetCss, targetCssMap)))
+    Try(doCompile(
+      source,
+      targetCss,
+      targetCssMap,
+      baseDirectory.getAbsolutePath,
+      source.getParent
+    ))
   }
 
 
-  def doCompile(in: File, out: File, map: File, baseDir: String, sourceDir: String): Set[String] = {
+  def doCompile(in: File, out: File, map: File, baseDir: String, sourceDir: String): CompilationResult = {
     // Set compiler options
     val options = generateOptions(in, map)
 
@@ -60,7 +54,7 @@ class SassCompiler(compilerSettings: CompilerSettings) {
 
     // Output the source map in case it should be output
     Option(compiled.getSourceMap) match {
-      case Some(sourceMap) =>
+      case Some(sourceMap) if compilerSettings.generateSourceMaps =>
         val revisedMap = transformSourceMap(sourceMap, out.getParent, sourceDir)
 
         val mapWriter = new FileWriter(map)
@@ -70,12 +64,17 @@ class SassCompiler(compilerSettings: CompilerSettings) {
       case _ => // Do not output any source map
     }
 
+    val filesWritten = if (compilerSettings.generateSourceMaps)
+      Set(out, map)
+    else
+      Set(out)
+
     // Extract the file dependencies from the source map.
     Option(compiled.getSourceMap) match {
       case Some(sourceMap) =>
-        extractDependencies(out.getParent, sourceMap)
+        OpSuccess(extractDependencies(out.getParent, sourceMap).map(new File(_)), filesWritten)
       case None =>
-        Set[String]()
+        OpSuccess(Set(new File(in.getCanonicalPath)), filesWritten)
     }
   }
 
