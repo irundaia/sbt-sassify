@@ -85,6 +85,13 @@ class SassCompiler(compilerSettings: CompilerSettings) {
       case Sassy => OutputStyle.NESTED
     }
 
+    // Determine syntax version
+    val isIndented = compilerSettings.syntaxDetection match {
+      case Auto => sourceFile.toString.endsWith("sass")
+      case ForceSass => true
+      case ForceScss => false
+    }
+
     val options = new Options
     options.setSourceMapFile(sourceMapFile.toURI)
     // Note the source map will always be generated to determine the parsed files
@@ -93,8 +100,7 @@ class SassCompiler(compilerSettings: CompilerSettings) {
     options.setOutputStyle(compilerStyle)
 
     // Determine syntax version
-    if (sourceFile.getPath.endsWith("sass"))
-      options.setIsIndentedSyntaxSrc(true)
+    options.setIsIndentedSyntaxSrc(isIndented)
 
     options
   }

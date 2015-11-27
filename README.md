@@ -29,7 +29,8 @@ Now you can include the plugin in `project/plugins.sbt` or `project/sbt-sassify.
 
 This plugin uses the same conventions as sbt-web. As such all `*.sass` and `*.scss` files in the `<source dir>/assets`
 directory will be compiled. Depending on the extension of the file, the plugin will decide which syntax should be used
-to compile the source file. `.sass` for the indented syntax and `.scss` for the css-like syntax.
+to compile the source file. `.sass` for the indented syntax and `.scss` for the css-like syntax. (Note that the input
+style can be forced. See the `syntaxDetection` option.)
 
 ### Options
 
@@ -40,6 +41,7 @@ Some options can be passed to the SASS compiler. For an overview, see below:
 | cssStyle           | The style of the output CSS file.                                    | `Minified`/`Maxified`/`Sassy`  | `Minified`    |
 | generateSourceMaps | Whether or not source files are generated.                           | `true`/`false`                 | `true`        |
 | embedSources       | Whether or not the sources should be embedded in the source map file | `true`/`false`                 | `true`        |
+| syntaxDetection    | How to determine whether the sass/scss syntax is used                | `Auto`/`ForceScss`/`ForceSass` | `Auto`        |
 
 Changing the settings can be done by including the following settings in your build.sbt file:
 
@@ -49,6 +51,8 @@ import org.irundaia.sbt.sass._
 SassKeys.cssStyle := Maxified
 
 SassKeys.generateSourceMaps := true
+
+SassKeys.syntaxDetection := ForceScss
 ```
 
 ## Versioning
