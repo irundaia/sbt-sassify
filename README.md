@@ -6,7 +6,7 @@ project.
 This plugin is a reimplementation of [sbt-sass](https://github.com/ShaggyYeti/sbt-sass).
 Since I wasn't allowed to install the sass command line compiler on my company's' webserver (damn you corporate IT),
 I decided to rewrite the plugin to use [jsass](https://github.com/bit3/jsass) instead. Due to these changes, the plugin
-no longer resembled the old plugin. That is why I decided to host it myself.
+no longer resembled the old plugin, which is why I decided to host it myself.
 
 ## SASS language version
 This plugin is based on [libsass](https://github.com/sass/libsass) version 3.2, that implements the SASS 3.3 specification.
@@ -35,10 +35,11 @@ to compile the source file. `.sass` for the indented syntax and `.scss` for the 
 
 Some options can be passed to the SASS compiler. For an overview, see below:
 
-| Setting            | Description                                | Supported values              | Default value |
-|--------------------|--------------------------------------------|-------------------------------|---------------|
-| cssStyle           | The style of the output CSS file.          | `Minified`/`Maxified`/`Sassy` | `Minified`    |
-| generateSourceMaps | Whether or not source files are generated. | `true`/`false`                | `true`        |
+| Setting            | Description                                                          | Supported values               | Default value |
+|--------------------|----------------------------------------------------------------------|--------------------------------|---------------|
+| cssStyle           | The style of the output CSS file.                                    | `Minified`/`Maxified`/`Sassy`  | `Minified`    |
+| generateSourceMaps | Whether or not source files are generated.                           | `true`/`false`                 | `true`        |
+| embedSources       | Whether or not the sources should be embedded in the source map file | `true`/`false`                 | `true`        |
 
 Changing the settings can be done by including the following settings in your build.sbt file:
 

@@ -14,6 +14,7 @@ object SassKeys {
 
   val cssStyle = SettingKey[CssStyle]("cssStyle", "The style of the to-be-output CSS files.")
   val generateSourceMaps = SettingKey[Boolean]("generateSourceMaps", "Whether or not source map files should be generated.")
+  val embedSources = SettingKey[Boolean]("embedSources", "Whether or not the source files should be embedded in the source map")
 }
 
 object SbtSassify extends AutoPlugin {
@@ -23,7 +24,9 @@ object SbtSassify extends AutoPlugin {
 
   override lazy val buildSettings = Seq(
     cssStyle := Minified,
-    generateSourceMaps := true)
+    generateSourceMaps := true,
+    embedSources := true
+  )
 
   val baseSbtSassSettings = Seq(
     excludeFilter in sassify := HiddenFileFilter || "_*",
@@ -47,7 +50,7 @@ object SbtSassify extends AutoPlugin {
           // Compile all modified sources
           val compilationResults: Map[File, Try[CompilationResult]] = modifiedSources
             .map(inputFile => inputFile ->
-              new SassCompiler(CompilerSettings(cssStyle.value, generateSourceMaps.value))
+              new SassCompiler(CompilerSettings(cssStyle.value, generateSourceMaps.value, embedSources.value))
                 .compile(inputFile, baseDirectory.value, sourceDir, targetDir))
             .toMap
 

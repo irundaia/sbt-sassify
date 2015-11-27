@@ -89,7 +89,7 @@ class SassCompiler(compilerSettings: CompilerSettings) {
     options.setSourceMapFile(sourceMapFile.toURI)
     // Note the source map will always be generated to determine the parsed files
     options.setOmitSourceMapUrl(!compilerSettings.generateSourceMaps)
-    options.setSourceMapContents(false)
+    options.setSourceMapContents(compilerSettings.embedSources)
     options.setOutputStyle(compilerStyle)
 
     // Determine syntax version
