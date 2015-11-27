@@ -55,7 +55,7 @@ class SassCompiler(compilerSettings: CompilerSettings) {
 
         cssWriter.write(css)
         cssWriter.close()
-      case _ => throw new SassCompilerException(compiled.getErrorMessage.split(System.lineSeparator))
+      case _ => throw SassCompilerException(compiled)
     }
 
     // Output the source map in case it should be output
