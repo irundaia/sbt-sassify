@@ -2,9 +2,12 @@ package org.irundaia.sbt.sass
 
 import com.typesafe.sbt.web.Import.WebKeys._
 import com.typesafe.sbt.web.SbtWeb.autoImport._
+import com.typesafe.sbt.web.incremental.{OpResult, OpFailure}
 import com.typesafe.sbt.web.{SbtWeb, incremental}
 import sbt.Keys._
 import sbt._
+
+import scala.util.{Try, Success, Failure}
 
 object SassKeys {
   val sassify = TaskKey[Seq[File]]("sassify", "Generate css files from scss and sass files.")
@@ -42,15 +45,22 @@ object SbtSassify extends AutoPlugin {
             streams.value.log.info(s"Sass compiling on ${modifiedSources.size} source(s)")
 
           // Compile all modified sources
-          val compilationResults = modifiedSources
+          val compilationResults: Map[File, Try[CompilationResult]] = modifiedSources
             .map(inputFile => inputFile ->
               new SassCompiler(CompilerSettings(cssStyle.value, generateSourceMaps.value))
                 .compile(inputFile, baseDirectory.value, sourceDir, targetDir))
             .toMap
 
+          // Collect OpResults
+          val opResults: Map[File, OpResult] = compilationResults.mapValues {
+            case Success(compResult) => compResult // Note that
+            case Failure(_) => OpFailure
+          }
+
           // Collect the created files
-          val createdFiles = compilationResults
+          val createdFiles: Seq[File] = compilationResults
             .values
+            .flatMap(_.toOption)
             .map(_.filesWritten)
             .foldLeft(Seq.empty[File]){
               case (acc, addedFiles) => acc ++ addedFiles
@@ -59,7 +69,7 @@ object SbtSassify extends AutoPlugin {
           if (createdFiles.nonEmpty)
             streams.value.log.info(s"Sass compilation done. ${createdFiles.size} resulting css/source map file(s)")
 
-          (compilationResults, createdFiles)
+          (opResults, createdFiles)
       }
 
       // Return the dependencies

@@ -7,9 +7,11 @@ import io.bit3.jsass.{Compiler, Options, OutputStyle}
 import java.util.regex.Pattern
 import play.api.libs.json._
 
+import scala.util.Try
+
 class SassCompiler(compilerSettings: CompilerSettings) {
 
-  def compile(source: File, baseDirectory: File, sourceDir: File, targetDir: File): OpSuccess = {
+  def compile(source: File, baseDirectory: File, sourceDir: File, targetDir: File): Try[CompilationResult] = {
     // Determine the source filename (relative to the source directory)
     val fileName = source.getPath.replaceAll(Pattern.quote(sourceDir.getPath), "").replaceFirst("""\.\w+""", "")
     def sourceWithExtn(extn: String): File = new File(s"$targetDir$fileName.$extn")
@@ -23,18 +25,18 @@ class SassCompiler(compilerSettings: CompilerSettings) {
 
     // Compile the sources, and get the dependencies
     val dependencies =
-      doCompile(
+      Try(doCompile(
         source,
         targetCss,
         targetCssMap,
         baseDirectory.getAbsolutePath,
         source.getParent
-      )
+      ))
 
-    val readFiles = dependencies.map(new File(_)) + source
+    val readFiles = dependencies.map(_.map(new File(_)) + source)
 
     // Return which files have been read/written
-    OpSuccess(readFiles, Set(targetCss, targetCssMap))
+    readFiles.map(files => OpSuccess(files, Set(targetCss, targetCssMap)))
   }
 
 
