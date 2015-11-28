@@ -37,7 +37,7 @@ class SassCompilerTest extends FunSpec with MustMatchers {
         val map = File.createTempFile("sbt-sass-test", ".css.map.json")
 
         val compilationResults = Try(new SassCompiler(compilerSettings)
-          .doCompile(input, output, map, "", ""))
+          .doCompile(input, output, map, ""))
         val cssMin = Source.fromFile(output).mkString
 
         val testMinCss = cssMin.replaceAll("\\/\\*.*?\\*\\/", "").replaceAll("\\s+", "")
@@ -73,7 +73,7 @@ class SassCompilerTest extends FunSpec with MustMatchers {
         val map = File.createTempFile("sbt-sass-test", ".css.map.json")
 
         val compilationResult = Try(new SassCompiler(compilerSettings)
-          .doCompile(input,  output, map, "", ""))
+          .doCompile(input,  output, map, ""))
 
         val cssMin = Source.fromFile(output).mkString
         val testMinCss = cssMin.replaceAll("\\/\\*.*?\\*\\/", "").replaceAll("\\s+", "")
@@ -106,7 +106,7 @@ class SassCompilerTest extends FunSpec with MustMatchers {
 
         val exception = the[SassCompilerException] thrownBy
           new SassCompiler(compilerSettings)
-            .doCompile(input, output, map, "", "")
+            .doCompile(input, output, map, "")
 
         exception.problem.message mustEqual "invalid property name"
       }

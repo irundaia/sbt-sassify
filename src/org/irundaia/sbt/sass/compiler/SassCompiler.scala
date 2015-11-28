@@ -28,7 +28,7 @@ import scala.util.Try
 
 class SassCompiler(compilerSettings: CompilerSettings) {
 
-  def compile(source: File, baseDirectory: File, sourceDir: File, targetDir: File): Try[CompilationResult] = {
+  def compile(source: File, sourceDir: File, targetDir: File): Try[CompilationResult] = {
     // Determine the source filename (relative to the source directory)
     val fileName = source.getPath.replaceAll(Pattern.quote(sourceDir.getPath), "").replaceFirst("""\.\w+""", "")
     def sourceWithExtn(extn: String): File = new File(s"$targetDir$fileName.$extn")
@@ -45,13 +45,12 @@ class SassCompiler(compilerSettings: CompilerSettings) {
       source,
       targetCss,
       targetCssMap,
-      baseDirectory.getAbsolutePath,
       source.getParent
     ))
   }
 
 
-  def doCompile(in: File, out: File, map: File, baseDir: String, sourceDir: String): CompilationResult = {
+  def doCompile(in: File, out: File, map: File, sourceDir: String): CompilationResult = {
     // Set compiler options
     val options = generateOptions(in, map)
 

@@ -70,7 +70,7 @@ object SbtSassify extends AutoPlugin {
           val compilationResults: Map[File, Try[CompilationResult]] = modifiedSources
             .map(inputFile => inputFile ->
               new SassCompiler(CompilerSettings(cssStyle.value, generateSourceMaps.value, embedSources.value, syntaxDetection.value))
-                .compile(inputFile, baseDirectory.value, sourceDir, targetDir))
+                .compile(inputFile, sourceDir, targetDir))
             .toMap
 
           // Collect OpResults

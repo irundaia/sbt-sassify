@@ -23,3 +23,7 @@
  extension;
 - Restructure tests;
 - Package cleanup.
+
+## 1.2.1
+- Make sure that there are no jsass related entries in the sourceContent field in the source map
+- Remove unused baseDirectory parameter
