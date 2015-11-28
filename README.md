@@ -19,7 +19,7 @@ This plugin has been tested against sbt-web and the Play framework versions 1.2.
 
 Add the irundaia sbt-plugins repository at bintray to your resolvers in `build.sbt`:
 
-    resolvers += "irundaia sbt-plugins" at "https://dl.bintray.com/irundaia/sbt-plugins/"
+    resolvers += Resolver.url("irundaia sbt-plugins", url("http://dl.bintray.com/irundaia/sbt-plugins"))(Resolver.ivyStylePatterns)
 
 Now you can include the plugin in `project/plugins.sbt` or `project/sbt-sassify.sbt` like this:
 
