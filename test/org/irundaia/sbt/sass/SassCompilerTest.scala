@@ -20,6 +20,7 @@ import java.io.File
 
 import org.irundaia.sbt.sass.compiler.{SassCompilerException, SassCompiler, CompilerSettings}
 import org.scalatest.{FunSpec, MustMatchers}
+import play.api.libs.json.Json
 
 import scala.io.Source
 import scala.util.Try
@@ -56,6 +57,13 @@ class SassCompilerTest extends FunSpec with MustMatchers {
 
         it("should have read the correct file") {
           compilationResults.get.filesRead.head.getCanonicalPath must include("well-formed.scss")
+        }
+
+        it ("the source map should not have an entry in the sourcesContent field referring to jsass") {
+          val parsedSourceMap = Json.parse(Source.fromFile(map).getLines().mkString("\n"))
+          val jsassContents = (parsedSourceMap \ "sourcesContent").as[Seq[String]].filter(_.startsWith("$jsass-void"))
+
+          jsassContents mustBe empty
         }
       }
 

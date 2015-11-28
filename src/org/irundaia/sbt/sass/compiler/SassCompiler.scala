@@ -89,7 +89,7 @@ class SassCompiler(compilerSettings: CompilerSettings) {
     // Extract the file dependencies from the source map.
     Option(compiled.getSourceMap) match {
       case Some(sourceMap) =>
-        OpSuccess(extractDependencies(out.getParent, sourceMap).map(new File(_)), filesWritten)
+        OpSuccess(extractDependencies(out.getParent, sourceMap).map(new File(_)).toSet, filesWritten)
       case None =>
         OpSuccess(Set(new File(in.getCanonicalPath)), filesWritten)
     }
@@ -122,24 +122,45 @@ class SassCompiler(compilerSettings: CompilerSettings) {
     options
   }
 
-  private def extractDependencies(baseDir: String, originalMap: String): Set[String] = {
+  private def extractDependencies(baseDir: String, originalMap: String): Seq[String] = {
     val parsed = Json.parse(originalMap)
     (parsed \ "sources")
-      .as[Set[String]]
+      .as[Seq[String]]
       // Map to a file to get the canonical path because libsass does not use platform specific separators
       // Go up one directory because we want to get out of the target folder when retrieving the full path.
       .map(f => new File(s"""$baseDir../$f""").getCanonicalPath)
   }
 
   private def transformSourceMap(originalMap: String, baseDir: String, sourceDir: String): String = {
-    val parsed = Json.parse(originalMap)
-    // Use relative filenames to make sure that the bowser can find the files when they are moved
-    val transformedDependencies = extractDependencies(baseDir, originalMap).map(convertToRelativePath(_, sourceDir))
+    val parsed = Json.parse(originalMap).as[JsObject]
+    // Use relative filenames to make sure that the bowser can find the files when they are moved to the target dir
+    val transformedDependencies =
+      extractDependencies(baseDir, originalMap)
+        .map(convertToRelativePath(_, sourceDir))
+        .map(JsString.apply)
 
-    //
-    val updatedMap =
-      parsed.as[JsObject] ++
-        Json.obj("sources" -> JsArray(transformedDependencies.map(JsString.apply).toSeq))
+    // Exclude jsass in sources contents (when they're included in the source map)
+    val filteredSourcesContent =
+      (parsed \ "sourcesContent")
+        .toOption
+        .map(
+          _.as[Seq[String]]
+            .filter(!_.startsWith("$jsass-void"))
+            .map(JsString.apply)
+        )
+
+    // Update the source map with the newly computed sources
+    val mapWithUpdatedSources =
+      parsed ++
+        Json.obj("sources" -> JsArray(transformedDependencies))
+
+    // Update the source map with the newly computed sources contents
+    val updatedMap = filteredSourcesContent match {
+      case Some(contents) =>
+        mapWithUpdatedSources ++
+          Json.obj("sourcesContent" -> JsArray(contents))
+      case None => mapWithUpdatedSources
+    }
 
     Json.prettyPrint(updatedMap)
   }
