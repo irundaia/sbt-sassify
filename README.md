@@ -1,6 +1,6 @@
 # SASS plugin for sbt
 
-An sbt plugin that enables you to use [SASS](http://sass-lang.com/) in your sbt-web
+An sbt plugin that enables you to use [SASS](http://sass-lang.com/) in your [sbt-web](https://github.com/sbt/sbt-web)
 project.
 
 This plugin is a reimplementation of [sbt-sass](https://github.com/ShaggyYeti/sbt-sass).
