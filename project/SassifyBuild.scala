@@ -70,4 +70,5 @@ object SassifyBuild extends Build {
     .enablePlugins(AutomateHeaderPlugin)
     .settings(copyrightSettings: _*)
     .settings(sbtWebSettings: _*)
+    .enablePlugins(GitVersioning)
 }

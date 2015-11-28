@@ -1,6 +1,5 @@
 name := "sbt-sassify"
 organization := "org.irundaia.sbt"
-version := "1.2.0"
 sbtPlugin := true
 
 libraryDependencies ++= Seq(
