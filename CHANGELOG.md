@@ -27,3 +27,6 @@
 ## 1.2.1
 - Make sure that there are no jsass related entries in the sourceContent field in the source map
 - Remove unused baseDirectory parameter
+
+## 1.2.2
+- Make sure that sass files are recompiled if the settings are modified (no longer needs a clean)

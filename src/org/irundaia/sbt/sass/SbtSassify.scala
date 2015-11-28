@@ -18,7 +18,7 @@ package org.irundaia.sbt.sass
 
 import com.typesafe.sbt.web.Import.WebKeys._
 import com.typesafe.sbt.web.SbtWeb.autoImport._
-import com.typesafe.sbt.web.incremental.{OpResult, OpFailure}
+import com.typesafe.sbt.web.incremental.{OpInputHash, OpInputHasher, OpResult, OpFailure}
 import com.typesafe.sbt.web.{CompileProblems, SbtWeb, incremental}
 import org.irundaia.sbt.sass.compiler.{SassCompilerException, SassCompiler, CompilerSettings}
 import sbt.Keys._
@@ -59,6 +59,14 @@ object SbtSassify extends AutoPlugin {
       val sourceDir = (sourceDirectory in Assets).value
       val targetDir = (resourceManaged in sassify in Assets).value
       val sources = (sourceDir ** ((includeFilter in sassify in Assets).value -- (excludeFilter in sassify in Assets).value)).get
+      lazy val compilerSettings =
+        CompilerSettings(cssStyle.value, generateSourceMaps.value, embedSources.value, syntaxDetection.value)
+
+      implicit val fileHasherIncludingOptions: OpInputHasher[File] =
+        OpInputHasher[File](f => {
+          val bytes = f.getCanonicalPath ++ compilerSettings.toString
+          OpInputHash.hashString(bytes)
+        })
 
       val results = incremental.syncIncremental((streams in Assets).value.cacheDirectory / "run", sources) {
         modifiedSources: Seq[File] =>
@@ -69,13 +77,13 @@ object SbtSassify extends AutoPlugin {
           // Compile all modified sources
           val compilationResults: Map[File, Try[CompilationResult]] = modifiedSources
             .map(inputFile => inputFile ->
-              new SassCompiler(CompilerSettings(cssStyle.value, generateSourceMaps.value, embedSources.value, syntaxDetection.value))
+              new SassCompiler(compilerSettings)
                 .compile(inputFile, sourceDir, targetDir))
             .toMap
 
           // Collect OpResults
           val opResults: Map[File, OpResult] = compilationResults.mapValues {
-            case Success(compResult) => compResult // Note that
+            case Success(compResult) => compResult // Note that a CompilationResult is a OpSuccess
             case Failure(_) => OpFailure
           }
 
@@ -98,7 +106,7 @@ object SbtSassify extends AutoPlugin {
             streams.value.log.info(s"Sass compilation done. ${createdFiles.size} resulting css/source map file(s)")
 
           (opResults, createdFiles)
-      }
+      }(fileHasherIncludingOptions)
 
       // Return the dependencies
       (results._1 ++ results._2.toSet).toSeq
