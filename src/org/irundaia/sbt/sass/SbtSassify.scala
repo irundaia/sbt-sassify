@@ -68,10 +68,7 @@ object SbtSassify extends AutoPlugin {
         CompilerSettings(cssStyle.value, generateSourceMaps.value, embedSources.value, syntaxDetection.value)
 
       implicit val fileHasherIncludingOptions: OpInputHasher[File] =
-        OpInputHasher[File](f => {
-          val bytes = f.getCanonicalPath ++ compilerSettings.toString
-          OpInputHash.hashString(bytes)
-        })
+        OpInputHasher[File](f => OpInputHash.hashString(f.getCanonicalPath + compilerSettings.toString))
 
       val results = incremental.syncIncremental((streams in Assets).value.cacheDirectory / "run", sources) {
         modifiedSources: Seq[File] =>
