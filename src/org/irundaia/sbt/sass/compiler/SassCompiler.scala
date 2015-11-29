@@ -20,7 +20,7 @@ import java.io.{File, FileWriter}
 import java.util.regex.Pattern
 
 import com.typesafe.sbt.web.incremental.OpSuccess
-import io.bit3.jsass.{Compiler, Options, OutputStyle}
+import io.bit3.jsass.{Output, Compiler, Options, OutputStyle}
 import org.irundaia.sbt.sass._
 import play.api.libs.json._
 
@@ -28,107 +28,95 @@ import scala.util.Try
 
 class SassCompiler(compilerSettings: CompilerSettings) {
 
-  def compile(source: File, sourceDir: File, targetDir: File): Try[CompilationResult] = {
+  def compile(sass: File, sourceDir: File, targetDir: File): Try[CompilationResult] = {
     // Determine the source filename (relative to the source directory)
-    val fileName = source.getPath.replaceAll(Pattern.quote(sourceDir.getPath), "").replaceFirst("""\.\w+""", "")
+    val fileName = sass.getPath.replaceAll(Pattern.quote(sourceDir.getPath), "").replaceFirst("""\.\w+""", "")
     def sourceWithExtn(extn: String): File = new File(s"$targetDir$fileName.$extn")
 
     // Determine target files
-    val targetCss = sourceWithExtn("css")
-    val targetCssMap = sourceWithExtn("css.map")
+    val css = sourceWithExtn("css")
+    val sourceMap = sourceWithExtn("css.map")
 
     // Make sure that the target directory is created
-    targetCss.getParentFile.mkdirs()
+    css.getParentFile.mkdirs()
 
     // Compile the sources, and get the dependencies
     Try(doCompile(
-      source,
-      targetCss,
-      targetCssMap,
-      source.getParent
+      sass,
+      css,
+      sourceMap
     ))
   }
 
-
-  def doCompile(in: File, out: File, map: File, sourceDir: String): CompilationResult = {
-    // Set compiler options
-    val options = generateOptions(in, map)
+  def doCompile(sass: File, css: File, sourceMap: File): CompilationResult = {
+    val options = generateCompilerOptions(sass, sourceMap)
 
     // Compile to CSS
     val compiler = new Compiler
-    val compiled = compiler.compileFile(in.toURI, out.toURI, options)
+    val compilationResult = compiler.compileFile(sass.toURI, css.toURI, options)
 
     // Output the CSS or throw an exception when compilation failed
-    Option(compiled.getCss) match {
-      case Some(css) =>
-        val cssWriter = new FileWriter(out)
+    outputCss(compilationResult, css)
+    outputSourceMap(compilationResult, css, sourceMap, sass.getParent)
 
-        cssWriter.write(css)
+    determineCompilationDependencies(compilationResult, sass, css, sourceMap)
+  }
+
+  private def generateCompilerOptions(sourceFile: File, sourceMapFile: File): Options = {
+    val options = new Options
+
+    options.setSourceMapFile(sourceMapFile.toURI)
+    // Note the source map will always be generated to determine the parsed files
+    options.setOmitSourceMapUrl(!compilerSettings.generateSourceMaps)
+    options.setSourceMapContents(compilerSettings.embedSources)
+    options.setOutputStyle(compilerSettings.compilerStyle)
+    options.setIsIndentedSyntaxSrc(compilerSettings.isIndented(sourceFile.toString))
+
+    options
+  }
+
+  private def outputCss(compilationResult: Output, css: File) =
+    Option(compilationResult.getCss) match {
+      case Some(cssContent) =>
+        val cssWriter = new FileWriter(css)
+
+        cssWriter.write(cssContent)
         cssWriter.close()
-      case _ => throw SassCompilerException(compiled)
+      case _ => throw SassCompilerException(compilationResult)
     }
 
-    // Output the source map in case it should be output
-    Option(compiled.getSourceMap) match {
-      case Some(sourceMap) if compilerSettings.generateSourceMaps =>
-        val revisedMap = transformSourceMap(sourceMap, out.getParent, sourceDir)
-
-        val mapWriter = new FileWriter(map)
+  private def outputSourceMap(compilationResult: Output, css: File, sourceMap: File, sourceDir: String) =
+    Option(compilationResult.getSourceMap) match {
+      case Some(sourceMapContent) if compilerSettings.generateSourceMaps =>
+        val revisedMap = transformSourceMap(sourceMapContent, css.getParent, sourceDir)
+        val mapWriter = new FileWriter(sourceMap)
 
         mapWriter.write(revisedMap)
         mapWriter.close()
       case _ => // Do not output any source map
     }
 
+  def determineCompilationDependencies(compilationResult: Output, sass: File, css: File, sourceMap: File): CompilationResult = {
     val filesWritten = if (compilerSettings.generateSourceMaps)
-      Set(out, map)
+      Set(css, sourceMap)
     else
-      Set(out)
+      Set(css)
 
     // Extract the file dependencies from the source map.
-    Option(compiled.getSourceMap) match {
-      case Some(sourceMap) =>
-        OpSuccess(extractDependencies(out.getParent, sourceMap).map(new File(_)).toSet, filesWritten)
+    Option(compilationResult.getSourceMap) match {
+      case Some(sourceMapContent) =>
+        OpSuccess(extractDependencies(css.getParent, sourceMapContent).map(new File(_)).toSet, filesWritten)
       case None =>
-        OpSuccess(Set(new File(in.getCanonicalPath)), filesWritten)
+        OpSuccess(Set(new File(sass.getCanonicalPath)), filesWritten)
     }
   }
 
-  private def generateOptions(sourceFile: File, sourceMapFile: File): Options = {
-    val compilerStyle = compilerSettings.style match {
-      case Minified => OutputStyle.COMPRESSED
-      case Maxified => OutputStyle.EXPANDED
-      case Sassy => OutputStyle.NESTED
-    }
-
-    // Determine syntax version
-    val isIndented = compilerSettings.syntaxDetection match {
-      case Auto => sourceFile.toString.endsWith("sass")
-      case ForceSass => true
-      case ForceScss => false
-    }
-
-    val options = new Options
-    options.setSourceMapFile(sourceMapFile.toURI)
-    // Note the source map will always be generated to determine the parsed files
-    options.setOmitSourceMapUrl(!compilerSettings.generateSourceMaps)
-    options.setSourceMapContents(compilerSettings.embedSources)
-    options.setOutputStyle(compilerStyle)
-
-    // Determine syntax version
-    options.setIsIndentedSyntaxSrc(isIndented)
-
-    options
-  }
-
-  private def extractDependencies(baseDir: String, originalMap: String): Seq[String] = {
-    val parsed = Json.parse(originalMap)
-    (parsed \ "sources")
+  private def extractDependencies(baseDir: String, originalSourceMap: String): Seq[String] =
+    // Map to a file to get the canonical path because libsass does not use platform specific separators
+    // Go up one directory because we want to get out of the target folder when retrieving the full path.
+    (Json.parse(originalSourceMap) \ "sources")
       .as[Seq[String]]
-      // Map to a file to get the canonical path because libsass does not use platform specific separators
-      // Go up one directory because we want to get out of the target folder when retrieving the full path.
       .map(f => new File(s"""$baseDir../$f""").getCanonicalPath)
-  }
 
   private def transformSourceMap(originalMap: String, baseDir: String, sourceDir: String): String = {
     val parsed = Json.parse(originalMap).as[JsObject]

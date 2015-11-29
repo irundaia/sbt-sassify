@@ -19,20 +19,25 @@ package org.irundaia.sbt.sass
 import com.typesafe.sbt.web.Import.WebKeys._
 import com.typesafe.sbt.web.SbtWeb.autoImport._
 import com.typesafe.sbt.web.incremental.{OpInputHash, OpInputHasher, OpResult, OpFailure}
-import com.typesafe.sbt.web.{CompileProblems, SbtWeb, incremental}
+import com.typesafe.sbt.web.{LineBasedProblem, CompileProblems, SbtWeb, incremental}
 import org.irundaia.sbt.sass.compiler.{SassCompilerException, SassCompiler, CompilerSettings}
 import sbt.Keys._
 import sbt._
+import xsbti.{Severity, Problem}
 
+import scala.language.implicitConversions
 import scala.util.{Try, Success, Failure}
 
 object SassKeys {
   val sassify = TaskKey[Seq[File]]("sassify", "Generate css files from scss and sass files.")
 
   val cssStyle = SettingKey[CssStyle]("cssStyle", "The style of the to-be-output CSS files.")
-  val generateSourceMaps = SettingKey[Boolean]("generateSourceMaps", "Whether or not source map files should be generated.")
-  val embedSources = SettingKey[Boolean]("embedSources", "Whether or not the source files should be embedded in the source map")
-  val syntaxDetection = SettingKey[SyntaxDetection]("syntaxDetection", "How to determine whether the sass/scss syntax is used")
+  val generateSourceMaps =
+    SettingKey[Boolean]("generateSourceMaps", "Whether or not source map files should be generated.")
+  val embedSources =
+    SettingKey[Boolean]("embedSources", "Whether or not the source files should be embedded in the source map")
+  val syntaxDetection =
+    SettingKey[SyntaxDetection]("syntaxDetection", "How to determine whether the sass/scss syntax is used")
 }
 
 object SbtSassify extends AutoPlugin {
@@ -70,7 +75,6 @@ object SbtSassify extends AutoPlugin {
 
       val results = incremental.syncIncremental((streams in Assets).value.cacheDirectory / "run", sources) {
         modifiedSources: Seq[File] =>
-
           if (modifiedSources.nonEmpty)
             streams.value.log.info(s"Sass compiling on ${modifiedSources.size} source(s)")
 
@@ -88,8 +92,16 @@ object SbtSassify extends AutoPlugin {
           }
 
           // Report compilation problems
-          val problems = compilationResults.values.collect {
-            case Failure(e: SassCompilerException) => e.problem
+          val problems: Seq[Problem] = compilationResults.values.collect {
+            case Failure(e: SassCompilerException) =>
+              new LineBasedProblem(
+                e.message,
+                Severity.Error,
+                e.line,
+                e.column,
+                e.lineContent,
+                e.source
+              )
           }.toSeq
           CompileProblems.report((reporter in sassify).value, problems)
 

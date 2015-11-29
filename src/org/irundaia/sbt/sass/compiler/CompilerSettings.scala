@@ -16,6 +16,20 @@
 
 package org.irundaia.sbt.sass.compiler
 
-import org.irundaia.sbt.sass.{CssStyle, SyntaxDetection}
+import io.bit3.jsass.OutputStyle
+import org.irundaia.sbt.sass._
 
-case class CompilerSettings(style: CssStyle, generateSourceMaps: Boolean, embedSources: Boolean, syntaxDetection: SyntaxDetection)
+case class CompilerSettings(style: CssStyle, generateSourceMaps: Boolean, embedSources: Boolean, syntaxDetection: SyntaxDetection) {
+
+  def compilerStyle: OutputStyle = style match {
+    case Minified => OutputStyle.COMPRESSED
+    case Maxified => OutputStyle.EXPANDED
+    case Sassy => OutputStyle.NESTED
+  }
+
+  def isIndented(fileName: String): Boolean = syntaxDetection match {
+    case Auto => fileName.endsWith("sass")
+    case ForceSass => true
+    case ForceScss => false
+  }
+}

@@ -34,10 +34,10 @@ class SassCompilerTest extends FunSpec with MustMatchers {
       describe("without includes") {
         val input = new File(getClass.getResource("/org/irundaia/sbt/sass/well-formed.scss").toURI)
         val output = File.createTempFile("sbt-sass-test", ".css")
-        val map = File.createTempFile("sbt-sass-test", ".css.map.json")
+        val map = File.createTempFile("sbt-sass-test", ".css.map")
 
         val compilationResults = Try(new SassCompiler(compilerSettings)
-          .doCompile(input, output, map, ""))
+          .doCompile(input, output, map))
         val cssMin = Source.fromFile(output).mkString
 
         val testMinCss = cssMin.replaceAll("\\/\\*.*?\\*\\/", "").replaceAll("\\s+", "")
@@ -70,10 +70,10 @@ class SassCompilerTest extends FunSpec with MustMatchers {
       describe("with includes") {
         val input = new File(getClass.getResource("/org/irundaia/sbt/sass/well-formed-using-import.scss").toURI)
         val output = File.createTempFile("sbt-sass-test", ".css")
-        val map = File.createTempFile("sbt-sass-test", ".css.map.json")
+        val map = File.createTempFile("sbt-sass-test", ".css.map")
 
         val compilationResult = Try(new SassCompiler(compilerSettings)
-          .doCompile(input,  output, map, ""))
+          .doCompile(input,  output, map))
 
         val cssMin = Source.fromFile(output).mkString
         val testMinCss = cssMin.replaceAll("\\/\\*.*?\\*\\/", "").replaceAll("\\s+", "")
@@ -102,13 +102,13 @@ class SassCompilerTest extends FunSpec with MustMatchers {
       it("should throw an exception") {
         val input = new File(getClass.getResource("/org/irundaia/sbt/sass/broken-input.scss").toURI)
         val output = File.createTempFile("sbt-sass-test", ".css")
-        val map = File.createTempFile("sbt-sass-test", ".css.map.json")
+        val map = File.createTempFile("sbt-sass-test", ".css.map")
 
         val exception = the[SassCompilerException] thrownBy
           new SassCompiler(compilerSettings)
-            .doCompile(input, output, map, "")
+            .doCompile(input, output, map)
 
-        exception.problem.message mustEqual "invalid property name"
+        exception.getMessage must include("invalid property name")
       }
     }
   }
