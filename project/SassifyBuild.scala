@@ -64,11 +64,11 @@ object SassifyBuild extends Build {
   // File copyright headers
   lazy val sbtSassify = project
     .in(file("."))
-    .settings(directoryStructureSettings: _*)
-    .settings(compilerSettings: _*)
-    .settings(bintraySettings: _*)
+    .settings(directoryStructureSettings)
+    .settings(compilerSettings)
+    .settings(bintraySettings)
     .enablePlugins(AutomateHeaderPlugin)
-    .settings(copyrightSettings: _*)
-    .settings(sbtWebSettings: _*)
+    .settings(copyrightSettings)
+    .settings(sbtWebSettings)
     .enablePlugins(GitVersioning)
 }
