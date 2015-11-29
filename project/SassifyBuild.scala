@@ -44,21 +44,16 @@ object SassifyBuild extends Build {
     publish <<= publish dependsOn (test in Test)
   )
 
-  val copyrightSettings = Seq(
+  val copyrightSettings =
     headers := Map(
       "scala" -> Apache2_0("2015", "Han van Venrooij")
     )
-  )
 
-  val sbtWebSettings = Seq(
-    resolvers ++= List(
-      "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
-    ),
-    addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.2.2")
-  )
+  lazy val testScalastyle = taskKey[Unit]("testScalastyle")
+  val scalaStyleSettings = Seq (
+    testScalastyle := org.scalastyle.sbt.ScalastylePlugin.scalastyle.in(Compile).toTask("").value,
+    test <<= test in Test dependsOn testScalastyle
 
-  val sbtGitSettings = Seq(
-    addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "0.8.5")
   )
 
   // File copyright headers
@@ -67,8 +62,8 @@ object SassifyBuild extends Build {
     .settings(directoryStructureSettings)
     .settings(compilerSettings)
     .settings(bintraySettings)
-    .enablePlugins(AutomateHeaderPlugin)
     .settings(copyrightSettings)
-    .settings(sbtWebSettings)
+    .settings(scalaStyleSettings)
+    .enablePlugins(AutomateHeaderPlugin)
     .enablePlugins(GitVersioning)
 }
