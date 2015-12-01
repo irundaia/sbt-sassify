@@ -9,17 +9,17 @@ I decided to rewrite the plugin to use [jsass](https://github.com/bit3/jsass) in
 no longer resembled the old plugin, which is why I decided to host it myself.
 
 ## SASS language version
-This plugin is based on [libsass](https://github.com/sass/libsass) version 3.2, that implements the SASS 3.3 specification.
+This plugin is based on [libsass](https://github.com/sass/libsass) version 3.3.2, that implements the SASS 3.4 specification.
 
 ## sbt-web and Play framework support
 
-This plugin has been tested against sbt-web and the Play framework versions 1.2.2 and 2.4.3 respectively.
+This plugin has been tested against sbt-web and the Play framework versions 1.2.2 and 2.4.3+ respectively.
 
 ## Usage
 
 To use the `sbt-sassify` plugin you can include the plugin in `project/plugins.sbt` or `project/sbt-sassify.sbt` like this:
 
-    addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.2.2")
+    addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.3.0")
 
 ### Directory structure
 
