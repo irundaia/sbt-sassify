@@ -105,36 +105,35 @@ class SassCompiler(compilerSettings: CompilerSettings) {
     // Extract the file dependencies from the source map.
     Option(compilationResult.getSourceMap) match {
       case Some(sourceMapContent) =>
-        OpSuccess(extractDependencies(css.getParent, sourceMapContent).map(new File(_)).toSet, filesWritten)
+        OpSuccess(extractDependencies(css.getParent, sourceMapContent).filter(_.exists).toSet, filesWritten)
       case None =>
-        OpSuccess(Set(new File(sass.getCanonicalPath)), filesWritten)
+        OpSuccess(Set(sass.getCanonicalFile), filesWritten)
     }
   }
 
-  private def extractDependencies(baseDir: String, originalSourceMap: String): Seq[String] =
+  private def extractDependencies(baseDir: String, originalSourceMap: String): Seq[File] =
     // Map to a file to get the canonical path because libsass does not use platform specific separators
     // Go up one directory because we want to get out of the target folder when retrieving the full path.
-    (Json.parse(originalSourceMap) \ "sources")
-      .as[Seq[String]]
-      .map(f => new File(s"""$baseDir../$f""").getCanonicalPath)
+    toCanonicalFile(baseDir, (Json.parse(originalSourceMap) \ "sources")
+      .as[Seq[String]])
+
+  private def toCanonicalFile(baseDir: String, fileNames: Iterable[String]): Seq[File] =
+    fileNames
+      .map(f => new File(s"""$baseDir../$f""").getCanonicalFile)
+      .toSeq
 
   private def transformSourceMap(originalMap: String, baseDir: String, sourceDir: String): String = {
     val parsed = Json.parse(originalMap).as[JsObject]
-    // Use relative filenames to make sure that the bowser can find the files when they are moved to the target dir
+    val sourcesContent = (parsed \ "sourcesContent").toOption.map(_.as[Seq[String]])
+    val hasSourcesContent = sourcesContent.isDefined
+    val sourcesWithContent = (parsed \ "sources").as[Seq[String]].zip(sourcesContent.getOrElse(Stream.continually(""))).toMap
+    val filteredSources = sourcesWithContent.filterKeys(path => new File(path).exists)
+
+    // Use relative file names to make sure that the browser can find the files when they are moved to the target dir
     val transformedDependencies =
-      extractDependencies(baseDir, originalMap)
+      toCanonicalFile(baseDir, filteredSources.keys)
         .map(convertToRelativePath(_, sourceDir))
         .map(JsString.apply)
-
-    // Exclude jsass in sources contents (when they're included in the source map)
-    val filteredSourcesContent =
-      (parsed \ "sourcesContent")
-        .toOption
-        .map(
-          _.as[Seq[String]]
-            .filter(!_.startsWith("$jsass-void"))
-            .map(JsString.apply)
-        )
 
     // Update the source map with the newly computed sources
     val mapWithUpdatedSources =
@@ -142,16 +141,15 @@ class SassCompiler(compilerSettings: CompilerSettings) {
         Json.obj("sources" -> JsArray(transformedDependencies))
 
     // Update the source map with the newly computed sources contents
-    val updatedMap = filteredSourcesContent match {
-      case Some(contents) =>
+    val updatedMap = if (hasSourcesContent)
         mapWithUpdatedSources ++
-          Json.obj("sourcesContent" -> JsArray(contents))
-      case None => mapWithUpdatedSources
-    }
+          Json.obj("sourcesContent" -> JsArray(filteredSources.values.map(JsString).toSeq))
+      else
+        mapWithUpdatedSources
 
     Json.prettyPrint(updatedMap)
   }
 
-  private def convertToRelativePath(fileName: String, sourceDir: String): String =
-    fileName.replaceFirst(Pattern.quote(sourceDir + File.separator), "") // Convert to a relative path based on the sourceDir
+  private def convertToRelativePath(file: File, sourceDir: String): String =
+    file.getCanonicalPath.replaceFirst(Pattern.quote(sourceDir + File.separator), "")
 }
