@@ -30,7 +30,7 @@ case class SassCompilerException(message: String, line: Int, column: Int, lineCo
   override def getMessage: String =
     s"""Compilation error on line $line of $source:
         |$lineContent
-        |${" " * (column - 1)}^
+        |${" " * (column - 2)}^
         |$message
      """.stripMargin
 }
