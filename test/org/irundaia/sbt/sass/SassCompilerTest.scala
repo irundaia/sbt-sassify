@@ -99,16 +99,23 @@ class SassCompilerTest extends FunSpec with MustMatchers {
     }
 
     describe("using broken scss input") {
-      it("should throw an exception") {
-        val input = new File(getClass.getResource("/org/irundaia/sbt/sass/broken-input.scss").toURI)
-        val output = File.createTempFile("sbt-sass-test", ".css")
-        val map = File.createTempFile("sbt-sass-test", ".css.map")
+      val input = new File(getClass.getResource("/org/irundaia/sbt/sass/broken-input.scss").toURI)
+      val output = File.createTempFile("sbt-sass-test", ".css")
+      val map = File.createTempFile("sbt-sass-test", ".css.map")
 
+      describe("the thrown exception") {
         val exception = the[SassCompilerException] thrownBy
           new SassCompiler(compilerSettings)
             .doCompile(input, output, map)
 
-        exception.getMessage must include("invalid property name")
+        it("should report Invalid CSS") {
+          exception.getMessage must include("Invalid CSS after ")
+        }
+
+        it("should have an error on line 2 column 17") {
+          exception.line mustBe 2
+          exception.column mustBe 17
+        }
       }
     }
   }

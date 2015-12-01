@@ -30,3 +30,8 @@
 
 ## 1.2.2
 - Make sure that sass files are recompiled if the settings are modified (no longer needs a clean)
+
+## 1.3.0
+- Upgrade to jsass v4.0.0 (libsass v3.3.2)
+- Expand tests
+- Additional refactoring
