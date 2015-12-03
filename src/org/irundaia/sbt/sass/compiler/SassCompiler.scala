@@ -107,31 +107,33 @@ class SassCompiler(compilerSettings: CompilerSettings) {
       case Some(sourceMapContent) =>
         OpSuccess(extractDependencies(css.getParent, sourceMapContent).filter(_.exists).toSet, filesWritten)
       case None =>
-        OpSuccess(Set(sass.getCanonicalFile), filesWritten)
+        OpSuccess(Set(normalizeFile(sass)), filesWritten)
     }
   }
 
   private def extractDependencies(baseDir: String, originalSourceMap: String): Seq[File] =
-    // Map to a file to get the canonical path because libsass does not use platform specific separators
-    // Go up one directory because we want to get out of the target folder when retrieving the full path.
-    toCanonicalFile(baseDir, (Json.parse(originalSourceMap) \ "sources")
+    // Map to a file to get the normalized path because libsass does not use platform specific separators
+    normalizeFiles(baseDir, (Json.parse(originalSourceMap) \ "sources")
       .as[Seq[String]])
 
-  private def toCanonicalFile(baseDir: String, fileNames: Iterable[String]): Seq[File] =
+  private def normalizeFiles(baseDir: String, fileNames: Iterable[String]): Seq[File] =
     fileNames
-      .map(f => new File(s"""$baseDir../$f""").getCanonicalFile)
+      .map(f => normalizeFile(new File(s"""$baseDir/$f""")))
       .toSeq
+
+  private def normalizeFile(f: File): File = f.toPath.normalize().toFile
 
   private def transformSourceMap(originalMap: String, baseDir: String, sourceDir: String): String = {
     val parsed = Json.parse(originalMap).as[JsObject]
     val sourcesContent = (parsed \ "sourcesContent").toOption.map(_.as[Seq[String]])
     val hasSourcesContent = sourcesContent.isDefined
-    val sourcesWithContent = (parsed \ "sources").as[Seq[String]].zip(sourcesContent.getOrElse(Stream.continually(""))).toMap
-    val filteredSources = sourcesWithContent.filterKeys(path => new File(path).exists)
+    val sourcesWithContent = normalizeFiles(baseDir, (parsed \ "sources").as[Seq[String]])
+      .zip(sourcesContent.getOrElse(Stream.continually("")))
+      .toMap
+    val filteredSources = sourcesWithContent.filterKeys(_.exists)
 
     // Use relative file names to make sure that the browser can find the files when they are moved to the target dir
-    val transformedDependencies =
-      toCanonicalFile(baseDir, filteredSources.keys)
+    val transformedDependencies = filteredSources.keys.toSeq
         .map(convertToRelativePath(_, sourceDir))
         .map(JsString.apply)
 

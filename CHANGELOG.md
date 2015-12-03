@@ -35,3 +35,6 @@
 - Upgrade to jsass v4.0.0 (libsass v3.3.2)
 - Expand tests
 - Additional refactoring
+
+## 1.3.1
+- Fix source map paths
