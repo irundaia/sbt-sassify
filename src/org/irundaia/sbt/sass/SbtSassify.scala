@@ -76,10 +76,9 @@ object SbtSassify extends AutoPlugin {
             streams.value.log.info(s"Sass compiling on ${modifiedSources.size} source(s)")
 
           // Compile all modified sources
+          val compiler = new SassCompiler(compilerSettings)
           val compilationResults: Map[File, Try[CompilationResult]] = modifiedSources
-            .map(inputFile => inputFile ->
-              new SassCompiler(compilerSettings)
-                .compile(inputFile, sourceDir, targetDir))
+            .map(inputFile => inputFile -> compiler.compile(inputFile, sourceDir, targetDir))
             .toMap
 
           // Collect OpResults
