@@ -1,6 +1,6 @@
-# SASS plugin for sbt
+# Sass plugin for sbt
 
-An sbt plugin that enables you to use [SASS](http://sass-lang.com/) in your [sbt-web](https://github.com/sbt/sbt-web)
+An sbt plugin that enables you to use [Sass](http://sass-lang.com/) in your [sbt-web](https://github.com/sbt/sbt-web)
 project.
 
 This plugin is a reimplementation of [sbt-sass](https://github.com/ShaggyYeti/sbt-sass).
@@ -8,12 +8,16 @@ Since I wasn't allowed to install the sass command line compiler on my company's
 I decided to rewrite the plugin to use [jsass](https://github.com/bit3/jsass) instead. Due to these changes, the plugin
 no longer resembled the old plugin, which is why I decided to host it myself.
 
-## SASS language version
-This plugin is based on [libsass](https://github.com/sass/libsass) version 3.3.2, that implements the SASS 3.4 specification.
+## Sass language version
+This plugin is based on [libsass](https://github.com/sass/libsass) version 3.3.2, that implements the Sass 3.4 specification.
 
-## sbt-web and Play framework support
+## Compatibility
+The sbt-sassify plugin supports the following operating systems:
+- OS X 10.8+
+- Windows (32/64 bit)
+- Linux 64 bit
 
-This plugin has been tested against sbt-web and the Play framework versions 1.2.2 and 2.4.3+ respectively.
+Note that it requires Java 8. Additionally, this plugin has been tested against sbt-web and the Play framework versions 1.2.2 and 2.4.3+ respectively.
 
 ## Usage
 
@@ -30,7 +34,7 @@ style can be forced. See the `syntaxDetection` option.)
 
 ### Options
 
-Some options can be passed to the SASS compiler. For an overview, see below:
+Some options can be passed to the Sass compiler. For an overview, see below:
 
 | Setting            | Description                                                          | Supported values               | Default value |
 |--------------------|----------------------------------------------------------------------|--------------------------------|---------------|
@@ -62,5 +66,5 @@ sbt-sassify uses [semantic versioning](http://semver.org). Given a version numbe
 
 1. Source maps can only reflect files in the assets folder.
 
-2. Only one SASS syntax style can be used at the same time. So when compile a .scss file, one cannot include a .sass
+2. Only one Sass syntax style can be used at the same time. So when compiling a .scss file, one cannot include a .sass
   file. (Well, you can, but it won't compile.)
