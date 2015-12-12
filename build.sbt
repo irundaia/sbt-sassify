@@ -2,8 +2,6 @@ name := "sbt-sassify"
 organization := "org.irundaia.sbt"
 sbtPlugin := true
 
-resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
-
 addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.2.2")
 
 libraryDependencies ++= Seq(
