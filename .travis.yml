@@ -4,3 +4,5 @@ scala:
 jdk:
    - oraclejdk8
 sudo: false
+notifications: 
+  email: false
