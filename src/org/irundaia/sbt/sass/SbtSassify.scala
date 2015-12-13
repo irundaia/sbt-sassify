@@ -64,7 +64,7 @@ object SbtSassify extends AutoPlugin {
       val sourceDir = (sourceDirectory in Assets).value
       val targetDir = (resourceManaged in sassify in Assets).value
       val webJarsDir = (webJarsDirectory in Assets).value
-      println(webJarsDir)
+
       val sources = (sourceDir ** ((includeFilter in sassify in Assets).value -- (excludeFilter in sassify in Assets).value)).get
       lazy val compilerSettings =
         CompilerSettings(cssStyle.value, generateSourceMaps.value, embedSources.value, syntaxDetection.value, List(webJarsDir))
