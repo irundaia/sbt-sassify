@@ -16,10 +16,13 @@
 
 package org.irundaia.sbt.sass.compiler
 
-import io.bit3.jsass.OutputStyle
-import org.irundaia.sbt.sass._
+import java.io.File
 
-case class CompilerSettings(style: CssStyle, generateSourceMaps: Boolean, embedSources: Boolean, syntaxDetection: SyntaxDetection) {
+import io.bit3.jsass.{Options, OutputStyle}
+import org.irundaia.sbt.sass._
+import scala.collection.convert.wrapAsJava
+
+case class CompilerSettings(style: CssStyle, generateSourceMaps: Boolean, embedSources: Boolean, syntaxDetection: SyntaxDetection, includeDirs: Seq[File]) {
 
   def compilerStyle: OutputStyle = style match {
     case Minified => OutputStyle.COMPRESSED
@@ -31,5 +34,19 @@ case class CompilerSettings(style: CssStyle, generateSourceMaps: Boolean, embedS
     case Auto => fileName.endsWith("sass")
     case ForceSass => true
     case ForceScss => false
+  }
+
+  def toCompilerOptions(sourceFile: File, sourceMapFile: File): Options = {
+    val options = new Options
+
+    options.setSourceMapFile(sourceMapFile.toURI)
+    // Note the source map will always be generated to determine the parsed files
+    options.setOmitSourceMapUrl(!generateSourceMaps)
+    options.setSourceMapContents(embedSources)
+    options.setOutputStyle(compilerStyle)
+    options.setIsIndentedSyntaxSrc(isIndented(sourceFile.toString))
+    options.getIncludePaths.addAll(wrapAsJava.seqAsJavaList(includeDirs))
+
+    options
   }
 }

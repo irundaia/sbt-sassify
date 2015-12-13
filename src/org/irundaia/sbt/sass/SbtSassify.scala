@@ -63,9 +63,11 @@ object SbtSassify extends AutoPlugin {
     sassify in Assets := Def.task {
       val sourceDir = (sourceDirectory in Assets).value
       val targetDir = (resourceManaged in sassify in Assets).value
+      val webJarsDir = (webJarsDirectory in Assets).value
+      println(webJarsDir)
       val sources = (sourceDir ** ((includeFilter in sassify in Assets).value -- (excludeFilter in sassify in Assets).value)).get
       lazy val compilerSettings =
-        CompilerSettings(cssStyle.value, generateSourceMaps.value, embedSources.value, syntaxDetection.value)
+        CompilerSettings(cssStyle.value, generateSourceMaps.value, embedSources.value, syntaxDetection.value, List(webJarsDir))
 
       implicit val fileHasherIncludingOptions: OpInputHasher[File] =
         OpInputHasher[File](f => OpInputHash.hashString(f.getCanonicalPath + compilerSettings.toString))

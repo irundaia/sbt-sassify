@@ -49,7 +49,7 @@ class SassCompiler(compilerSettings: CompilerSettings) {
   }
 
   def doCompile(sass: File, css: File, sourceMap: File): CompilationResult = {
-    val options = generateCompilerOptions(sass, sourceMap)
+    val options = compilerSettings.toCompilerOptions(sass, sourceMap)
 
     // Compile to CSS
     val compiler = new Compiler
@@ -60,19 +60,6 @@ class SassCompiler(compilerSettings: CompilerSettings) {
     outputSourceMap(compilationResult, css, sourceMap, sass.getParent)
 
     determineCompilationDependencies(compilationResult, sass, css, sourceMap)
-  }
-
-  private def generateCompilerOptions(sourceFile: File, sourceMapFile: File): Options = {
-    val options = new Options
-
-    options.setSourceMapFile(sourceMapFile.toURI)
-    // Note the source map will always be generated to determine the parsed files
-    options.setOmitSourceMapUrl(!compilerSettings.generateSourceMaps)
-    options.setSourceMapContents(compilerSettings.embedSources)
-    options.setOutputStyle(compilerSettings.compilerStyle)
-    options.setIsIndentedSyntaxSrc(compilerSettings.isIndented(sourceFile.toString))
-
-    options
   }
 
   private def outputCss(compilationResult: Output, css: File) =
