@@ -115,7 +115,7 @@ class SassCompiler(compilerSettings: CompilerSettings) {
 
     // Use relative file names to make sure that the browser can find the files when they are moved to the target dir
     val transformedSources = sourcesWithContents.keys
-        .map(convertToRelativePath(_, sourceDir))
+        .map(convertToRelativePath)
         .map(JsString.apply)
 
     // Update the source map with the newly computed sources (contents)
@@ -137,6 +137,13 @@ class SassCompiler(compilerSettings: CompilerSettings) {
 
   private def normalizeFile(f: File): File = f.toPath.normalize.toFile
 
-  private def convertToRelativePath(file: File, sourceDir: String): String =
-    file.toPath.normalize.toString.replaceFirst(Pattern.quote(sourceDir + File.separator), "")
+  private def convertToRelativePath(file: File): String = {
+    val normalizedPath = file.toPath.normalize.toString
+    val ancestorDir = compilerSettings.includeDirs.find(includePath => normalizedPath.startsWith(includePath.toString))
+
+    ancestorDir match {
+      case None => normalizedPath
+      case Some(ancestor) => normalizedPath.replaceFirst(Pattern.quote(ancestor + File.separator), "")
+    }
+  }
 }

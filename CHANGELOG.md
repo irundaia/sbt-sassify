@@ -38,3 +38,6 @@
 
 ## 1.3.1
 - Fix source map paths
+
+## 1.3.2
+- Allow including web-jarred Sass files
