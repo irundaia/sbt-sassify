@@ -69,4 +69,4 @@ sbt-sassify uses [semantic versioning](http://semver.org). Given a version numbe
 1. Only one Sass syntax style can be used at the same time. So when compiling a .scss file, one cannot include a .sass
   file. (Well, you can, but it won't compile.)
 
-2. Due to lacking binaries, this plugin cannot be used on 32bit linux.
+2. Due to lacking binaries, this plugin cannot be used on 32bit linux distributions.
