@@ -20,6 +20,7 @@ import java.io.{File, FileWriter}
 import java.util.regex.Pattern
 
 import com.typesafe.sbt.web.incremental.OpSuccess
+import io.bit3.jsass.context.FileContext
 import io.bit3.jsass.{Output, Compiler, Options, OutputStyle}
 import org.irundaia.sbt.sass._
 import play.api.libs.json._
@@ -75,7 +76,7 @@ class SassCompiler(compilerSettings: CompilerSettings) {
   private def outputSourceMap(compilationResult: Output, css: File, sourceMap: File, sourceDir: String) =
     Option(compilationResult.getSourceMap) match {
       case Some(sourceMapContent) if compilerSettings.generateSourceMaps =>
-        val revisedMap = transformSourceMap(sourceMapContent, css.getParent, sourceDir)
+        val revisedMap = fixSourceMap(sourceMapContent, css.getParent, sourceDir)
         val mapWriter = new FileWriter(sourceMap)
 
         mapWriter.write(revisedMap)
@@ -103,42 +104,39 @@ class SassCompiler(compilerSettings: CompilerSettings) {
     normalizeFiles(baseDir, (Json.parse(originalSourceMap) \ "sources")
       .as[Seq[String]])
 
+  private def fixSourceMap(originalSourceMap: String, baseDir: String, sourceDir: String): String = {
+    val parsedSourceMap = Json.parse(originalSourceMap).as[JsObject]
+    val sourcesContent = (parsedSourceMap \ "sourcesContent").toOption.map(_.as[Seq[String]])
+    // Combine source file references with their contents
+    val sourcesWithContents = normalizeFiles(baseDir, (parsedSourceMap \ "sources").as[Seq[String]])
+      .zip(sourcesContent.getOrElse(Stream.continually("")))
+      .toMap
+      .filterKeys(_.exists) // Filter non-existing sources
+
+    // Use relative file names to make sure that the browser can find the files when they are moved to the target dir
+    val transformedSources = sourcesWithContents.keys
+        .map(convertToRelativePath(_, sourceDir))
+        .map(JsString.apply)
+
+    // Update the source map with the newly computed sources (contents)
+    val updatedMap = if (sourcesContent.isDefined)
+        parsedSourceMap ++
+          Json.obj("sources" -> JsArray(transformedSources.toSeq)) ++
+          Json.obj("sourcesContent" -> JsArray(sourcesWithContents.values.map(JsString).toSeq))
+      else
+        parsedSourceMap ++
+          Json.obj("sources" -> JsArray(transformedSources.toSeq))
+
+    Json.prettyPrint(updatedMap)
+  }
+
   private def normalizeFiles(baseDir: String, fileNames: Iterable[String]): Seq[File] =
     fileNames
       .map(f => normalizeFile(new File(s"""$baseDir/$f""")))
       .toSeq
 
-  private def normalizeFile(f: File): File = f.toPath.normalize().toFile
-
-  private def transformSourceMap(originalMap: String, baseDir: String, sourceDir: String): String = {
-    val parsed = Json.parse(originalMap).as[JsObject]
-    val sourcesContent = (parsed \ "sourcesContent").toOption.map(_.as[Seq[String]])
-    val hasSourcesContent = sourcesContent.isDefined
-    val sourcesWithContent = normalizeFiles(baseDir, (parsed \ "sources").as[Seq[String]])
-      .zip(sourcesContent.getOrElse(Stream.continually("")))
-      .toMap
-    val filteredSources = sourcesWithContent.filterKeys(_.exists)
-
-    // Use relative file names to make sure that the browser can find the files when they are moved to the target dir
-    val transformedDependencies = filteredSources.keys.toSeq
-        .map(convertToRelativePath(_, sourceDir))
-        .map(JsString.apply)
-
-    // Update the source map with the newly computed sources
-    val mapWithUpdatedSources =
-      parsed ++
-        Json.obj("sources" -> JsArray(transformedDependencies))
-
-    // Update the source map with the newly computed sources contents
-    val updatedMap = if (hasSourcesContent)
-        mapWithUpdatedSources ++
-          Json.obj("sourcesContent" -> JsArray(filteredSources.values.map(JsString).toSeq))
-      else
-        mapWithUpdatedSources
-
-    Json.prettyPrint(updatedMap)
-  }
+  private def normalizeFile(f: File): File = f.toPath.normalize.toFile
 
   private def convertToRelativePath(file: File, sourceDir: String): String =
-    file.getCanonicalPath.replaceFirst(Pattern.quote(sourceDir + File.separator), "")
+    file.toPath.normalize.toString.replaceFirst(Pattern.quote(sourceDir + File.separator), "")
 }
