@@ -112,9 +112,9 @@ class SassCompilerTest extends FunSpec with MustMatchers {
           exception.getMessage must include("Invalid CSS after ")
         }
 
-        it("should have an error on line 2 column 17") {
+        it("should have an error on line 2 column 16") {
           exception.line mustBe 2
-          exception.column mustBe 17
+          exception.column mustBe 16
         }
       }
     }

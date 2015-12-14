@@ -30,9 +30,8 @@ case class SassCompilerException(message: String, line: Int, column: Int, lineCo
   override def getMessage: String =
     s"""Compilation error on line $line of $source:
         |$lineContent
-        |${" " * (column - 2)}^
-        |$message
-     """.stripMargin
+        |${" " * column}^
+        |$message""".stripMargin
 }
 
 object SassCompilerException {
@@ -43,9 +42,8 @@ object SassCompilerException {
     val line = (errorJson \ "line").as[Int]
     val column = (errorJson \ "column").as[Int]
     val source = new File((errorJson \ "file").as[String])
-
     val lineContent = Source.fromFile(source).getLines().drop(line - 1).next
 
-    new SassCompilerException(message, line, column, lineContent, source)
+    new SassCompilerException(message, line, column - 1, lineContent, source)
   }
 }
