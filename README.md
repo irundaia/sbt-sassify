@@ -2,13 +2,9 @@
 
 # Sass plugin for sbt
 
-An sbt plugin that enables you to use [Sass](http://sass-lang.com/) in your [sbt-web](https://github.com/sbt/sbt-web)
-project.
+An sbt plugin that enables you to use [Sass](http://sass-lang.com/) in your [sbt-web](https://github.com/sbt/sbt-web) project.
 
-This plugin is a reimplementation of [sbt-sass](https://github.com/ShaggyYeti/sbt-sass).
-Since I wasn't allowed to install the sass command line compiler on my company's' webserver (damn you corporate IT),
-I decided to rewrite the plugin to use [jsass](https://github.com/bit3/jsass) instead. Due to these changes, the plugin
-no longer resembled the old plugin, which is why I decided to host it myself.
+This plugin is a reimplementation of [sbt-sass](https://github.com/ShaggyYeti/sbt-sass). Since I wasn't allowed to install the sass command line compiler on my company's' webserver (damn you corporate IT), I decided to rewrite the plugin to use [jsass](https://github.com/bit3/jsass) instead. Due to these changes, the plugin no longer resembled the old plugin, which is why I decided to host it myself.
 
 ## Sass language version
 This plugin is based on [libsass](https://github.com/sass/libsass) version 3.3.2, that implements the Sass 3.4 specification.
@@ -25,14 +21,74 @@ Note that it requires Java 8. Additionally, this plugin has been tested against 
 
 To use the `sbt-sassify` plugin you can include the plugin in `project/plugins.sbt` or `project/sbt-sassify.sbt` like this:
 
-    addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.3.1")
+```scala
+addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.3.2")
+```
 
 ### Directory structure
 
-This plugin uses the same conventions as sbt-web. As such all `*.sass` and `*.scss` files in the `<source dir>/assets`
-directory will be compiled. Depending on the extension of the file, the plugin will decide which syntax should be used
-to compile the source file. `.sass` for the indented syntax and `.scss` for the css-like syntax. (Note that the input
-style can be forced. See the `syntaxDetection` option.)
+This plugin uses the same conventions as sbt-web. As such all `*.sass` and `*.scss` files in the `<source dir>/assets`directory will be compiled. Depending on the extension of the file, the plugin will decide which syntax should be used to compile the source file. `.sass` for the indented syntax and `.scss` for the css-like syntax. (Note that the input style can be forced. See the `syntaxDetection` option.)
+
+For example, given a file structure as:
+
+```
+app
+└ assets
+  └ stylesheets
+    └ main.scss
+    └ utils
+      └ _reset.scss
+      └ _layout.scss
+```
+
+With the following `main.scss` source:
+
+```scss
+@import "utils/reset";
+@import "utils/layout";
+
+h1 {
+  color: red;
+}
+```
+
+The Sass file outlined above, will be compiled into `public/stylesheets/main.css`, and it will include all the content of the `reset` and `layout` partials.
+
+## Mixing Sass and web-jars
+
+[WebJars](http://www.webjars.org) enable us to depend on to depend on client libraries without pulling all dependencies into our own code base manually. To be able to use WebJars, you should include the `webjar-play` [plugin](https://github.com/webjars/webjars-play) in your library dependencies.
+
+Compass is a library containing all sorts of reusable functions and mixins for Sass. Unfortunately, this library is targeted towards the Ruby implementation of Sass. There is a number of useful mixins that can be extracted from it. Fortunately, these mixins are wrapped in a web-jar.
+
+Include the compass mixins in your project is as easy as including the web-jar dependency in your library dependencies. For example, within a `build.sbt` file:
+
+```scala
+libraryDependencies += "org.webjars.bower" % "compass-mixins" % "0.12.7"
+```
+
+sbt-web will automatically extract WebJars into a lib folder relative to your asset's target folder. Therefore, to use the Compass mixins you can import the mixins by:
+
+```scss
+@import "lib/compass-mixins/lib/compass";
+
+table.ellipsed-table {
+  tr td {
+    max-width: 100px;
+    @include ellipsis();
+  }
+}
+```
+
+The same idea can be used to include other Sass libraries, for instance the [official Sass port of bootstrap](https://github.com/twbs/bootstrap-sass). To include the WebJar use:
+
+```scala
+libraryDependencies += "org.webjars.bower" % "bootstrap-sass" % "3.3.6"
+```
+
+Then to use it in your project, you can use:
+```scss
+@import "lib/bootstrap-sass/assets/stylesheets/bootstrap";
+```
 
 ### Options
 
@@ -66,7 +122,6 @@ sbt-sassify uses [semantic versioning](http://semver.org). Given a version numbe
 
 ## Known limitations
 
-1. Only one Sass syntax style can be used at the same time. So when compiling a .scss file, one cannot include a .sass
-  file. (Well, you can, but it won't compile.)
+1. Only one Sass syntax style can be used at the same time. So when compiling a .scss file, one cannot include a .sass file. (Well, you can, but it won't compile.)
 
 2. Due to lacking binaries, this plugin cannot be used on 32bit linux distributions.
