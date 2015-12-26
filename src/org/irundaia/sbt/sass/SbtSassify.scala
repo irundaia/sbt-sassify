@@ -35,9 +35,10 @@ object SassKeys {
   val generateSourceMaps =
     SettingKey[Boolean]("generateSourceMaps", "Whether or not source map files should be generated.")
   val embedSources =
-    SettingKey[Boolean]("embedSources", "Whether or not the source files should be embedded in the source map")
+    SettingKey[Boolean]("embedSources", "Whether or not the source files should be embedded in the source map.")
   val syntaxDetection =
-    SettingKey[SyntaxDetection]("syntaxDetection", "How to determine whether the sass/scss syntax is used")
+    SettingKey[SyntaxDetection]("syntaxDetection", "How to determine whether the sass/scss syntax is used.")
+  val assetRootURL = SettingKey[String]("assetRootURL", "The base URL used to locate the assets.")
 }
 
 object SbtSassify extends AutoPlugin {
@@ -49,7 +50,8 @@ object SbtSassify extends AutoPlugin {
     cssStyle := Minified,
     generateSourceMaps := true,
     embedSources := true,
-    syntaxDetection := Auto
+    syntaxDetection := Auto,
+    assetRootURL := "/assets/"
   )
 
   val baseSbtSassifySettings = Seq(
@@ -67,7 +69,7 @@ object SbtSassify extends AutoPlugin {
 
       val sources = (sourceDir ** ((includeFilter in sassify in Assets).value -- (excludeFilter in sassify in Assets).value)).get
       lazy val compilerSettings =
-        CompilerSettings(cssStyle.value, generateSourceMaps.value, embedSources.value, syntaxDetection.value, Seq(sourceDir, webJarsDir))
+        CompilerSettings(cssStyle.value, generateSourceMaps.value, embedSources.value, syntaxDetection.value, Seq(sourceDir, webJarsDir), assetRootURL.value)
 
       implicit val fileHasherIncludingOptions: OpInputHasher[File] =
         OpInputHasher[File](f => OpInputHash.hashString(f.getCanonicalPath + compilerSettings.toString))

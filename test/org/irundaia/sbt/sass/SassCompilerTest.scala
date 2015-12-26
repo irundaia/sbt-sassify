@@ -27,7 +27,7 @@ import scala.util.Try
 
 class SassCompilerTest extends FunSpec with MustMatchers {
 
-  val compilerSettings = CompilerSettings(Minified, true, true, Auto, Seq())
+  val compilerSettings = CompilerSettings(Minified, true, true, Auto, Seq(), "")
 
   describe("The SassCompiler") {
     describe("using well formed scss input") {

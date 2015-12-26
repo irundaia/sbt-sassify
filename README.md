@@ -22,7 +22,7 @@ Note that it requires Java 8. Additionally, this plugin has been tested against 
 To use the `sbt-sassify` plugin you can include the plugin in `project/plugins.sbt` or `project/sbt-sassify.sbt` like this:
 
 ```scala
-addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.3.2")
+addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.4.0")
 ```
 
 ### Directory structure
@@ -98,8 +98,9 @@ Some options can be passed to the Sass compiler. For an overview, see below:
 |--------------------|----------------------------------------------------------------------|--------------------------------|---------------|
 | cssStyle           | The style of the output CSS file.                                    | `Minified`/`Maxified`/`Sassy`  | `Minified`    |
 | generateSourceMaps | Whether or not source files are generated.                           | `true`/`false`                 | `true`        |
-| embedSources       | Whether or not the sources should be embedded in the source map file | `true`/`false`                 | `true`        |
-| syntaxDetection    | How to determine whether the sass/scss syntax is used                | `Auto`/`ForceScss`/`ForceSass` | `Auto`        |
+| embedSources       | Whether or not the sources should be embedded in the source map file.| `true`/`false`                 | `true`        |
+| syntaxDetection    | How to determine whether the sass/scss syntax is used.               | `Auto`/`ForceScss`/`ForceSass` | `Auto`        |
+| assetsRootURL      | The base URL used to locate the assets.                              | Any `String`                   | `/assets`     |
 
 Changing the settings can be done by including the following settings in your build.sbt file:
 

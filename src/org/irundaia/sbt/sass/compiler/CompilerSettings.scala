@@ -17,12 +17,20 @@
 package org.irundaia.sbt.sass.compiler
 
 import java.io.File
+import java.net.URI
 
 import io.bit3.jsass.{Options, OutputStyle}
 import org.irundaia.sbt.sass._
+
 import scala.collection.convert.wrapAsJava
 
-case class CompilerSettings(style: CssStyle, generateSourceMaps: Boolean, embedSources: Boolean, syntaxDetection: SyntaxDetection, includeDirs: Seq[File]) {
+case class CompilerSettings(
+                             style: CssStyle,
+                             generateSourceMaps: Boolean,
+                             embedSources: Boolean,
+                             syntaxDetection: SyntaxDetection,
+                             includeDirs: Seq[File],
+                             rootURI: String) {
 
   def compilerStyle: OutputStyle = style match {
     case Minified => OutputStyle.COMPRESSED
@@ -46,6 +54,7 @@ case class CompilerSettings(style: CssStyle, generateSourceMaps: Boolean, embedS
     options.setOutputStyle(compilerStyle)
     options.setIsIndentedSyntaxSrc(isIndented(sourceFile.toString))
     options.getIncludePaths.addAll(wrapAsJava.seqAsJavaList(includeDirs))
+    options.setSourceMapRoot(new URI(rootURI))
 
     options
   }
