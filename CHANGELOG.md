@@ -41,3 +41,11 @@
 
 ## 1.3.2
 - Allow including web-jarred Sass files
+
+## 1.4.0
+- Fix caret position on exceptions
+- Add support for generic compilation issues (rather than line based ones)
+- Reuse the same compiler instance within an assets run
+- Use the libsass error code to determine whether the compilation succeeded or not
+- Make sure that assets can be found (now that absolute URL's are used in the source map)
+- Update the source mappings to exclude filtered files.
