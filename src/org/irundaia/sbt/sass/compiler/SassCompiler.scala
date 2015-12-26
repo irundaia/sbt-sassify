@@ -20,8 +20,7 @@ import java.io.{File, FileWriter}
 import java.util.regex.Pattern
 
 import com.typesafe.sbt.web.incremental.OpSuccess
-import io.bit3.jsass.context.FileContext
-import io.bit3.jsass.{Output, Compiler, Options, OutputStyle}
+import io.bit3.jsass.{Output, Compiler}
 import org.irundaia.sbt.sass._
 import play.api.libs.json._
 
@@ -64,13 +63,14 @@ class SassCompiler(compilerSettings: CompilerSettings) {
   }
 
   private def outputCss(compilationResult: Output, css: File) =
-    Option(compilationResult.getCss) match {
-      case Some(cssContent) =>
-        val cssWriter = new FileWriter(css)
+    if (compilationResult.getErrorStatus == 0) {
+      val cssWriter = new FileWriter(css)
 
-        cssWriter.write(cssContent)
-        cssWriter.close()
-      case _ => throw SassCompilerException(compilationResult)
+      cssWriter.write(compilationResult.getCss)
+      cssWriter.flush()
+      cssWriter.close()
+    } else {
+      throw SassCompilerException(compilationResult)
     }
 
   private def outputSourceMap(compilationResult: Output, css: File, sourceMap: File, sourceDir: String) =
@@ -80,6 +80,7 @@ class SassCompiler(compilerSettings: CompilerSettings) {
         val mapWriter = new FileWriter(sourceMap)
 
         mapWriter.write(revisedMap)
+        mapWriter.flush()
         mapWriter.close()
       case _ => // Do not output any source map
     }
@@ -143,7 +144,7 @@ class SassCompiler(compilerSettings: CompilerSettings) {
 
     ancestorDir match {
       case None => normalizedPath
-      case Some(ancestor) => normalizedPath.replaceFirst(Pattern.quote(ancestor + File.separator), "")
+      case Some(ancestor) => normalizedPath.replaceFirst(Pattern.quote(ancestor + "/"), "")
     }
   }
 }
