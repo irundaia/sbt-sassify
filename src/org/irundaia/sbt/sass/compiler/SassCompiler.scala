@@ -28,6 +28,7 @@ import play.api.libs.json._
 import scala.util.Try
 
 class SassCompiler(compilerSettings: CompilerSettings) {
+  val compiler = new Compiler
 
   def compile(sass: File, sourceDir: File, targetDir: File): Try[CompilationResult] = {
     // Determine the source filename (relative to the source directory)
@@ -53,7 +54,6 @@ class SassCompiler(compilerSettings: CompilerSettings) {
     val options = compilerSettings.toCompilerOptions(sass, sourceMap)
 
     // Compile to CSS
-    val compiler = new Compiler
     val compilationResult = compiler.compileFile(sass.toURI, css.toURI, options)
 
     // Output the CSS or throw an exception when compilation failed
