@@ -18,15 +18,15 @@ package org.irundaia.sbt.sass
 
 import com.typesafe.sbt.web.Import.WebKeys._
 import com.typesafe.sbt.web.SbtWeb.autoImport._
-import com.typesafe.sbt.web.incremental.{OpInputHash, OpInputHasher, OpResult, OpFailure}
-import com.typesafe.sbt.web.{LineBasedProblem, CompileProblems, SbtWeb, incremental}
-import org.irundaia.sbt.sass.compiler.{SassCompilerException, SassCompiler, CompilerSettings}
+import com.typesafe.sbt.web._
+import com.typesafe.sbt.web.incremental.{OpFailure, OpInputHash, OpInputHasher, OpResult}
+import org.irundaia.sbt.sass.compiler.{CompilerSettings, SassCompiler, SassCompilerLineBasedException}
 import sbt.Keys._
 import sbt._
-import xsbti.{Severity, Problem}
+import xsbti.{Problem, Severity}
 
 import scala.language.implicitConversions
-import scala.util.{Try, Success, Failure}
+import scala.util.{Failure, Success, Try}
 
 object SassKeys {
   val sassify = TaskKey[Seq[File]]("sassify", "Generate css files from scss and sass files.")
@@ -90,8 +90,8 @@ object SbtSassify extends AutoPlugin {
           }
 
           // Report compilation problems
-          val problems: Seq[Problem] = compilationResults.values.collect {
-            case Failure(e: SassCompilerException) =>
+          val problems: Seq[Problem] = compilationResults.collect {
+            case (_, Failure(e: SassCompilerLineBasedException)) =>
               new LineBasedProblem(
                 e.message,
                 Severity.Error,
@@ -100,6 +100,8 @@ object SbtSassify extends AutoPlugin {
                 e.lineContent,
                 e.source
               )
+            case (f, Failure(e)) =>
+              new GeneralProblem(e.getMessage, f)
           }.toSeq
           CompileProblems.report((reporter in sassify).value, problems)
 

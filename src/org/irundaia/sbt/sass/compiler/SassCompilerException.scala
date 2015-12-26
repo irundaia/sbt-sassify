@@ -25,25 +25,39 @@ import xsbti.{Problem, Severity}
 
 import scala.io.Source
 
-case class SassCompilerException(message: String, line: Int, column: Int, lineContent: String, source: File)
-  extends RuntimeException {
+sealed trait SassCompilerException extends RuntimeException
+case class SassCompilerLineBasedException(message: String, line: Int, column: Int, lineContent: String, source: File)
+  extends SassCompilerException {
   override def getMessage: String =
     s"""Compilation error on line $line of $source:
         |$lineContent
         |${" " * column}^
         |$message""".stripMargin
 }
+case class SassCompilerGenericException(message: String) extends SassCompilerException {
+  override def getMessage: String =
+    s"""Compilation error:
+       |$message
+     """.stripMargin
+}
 
 object SassCompilerException {
   def apply(compilationOutput: Output): SassCompilerException = {
+    if (compilationOutput.getErrorStatus == 1) applyLineBased(compilationOutput) else applyGeneric(compilationOutput)
+  }
+
+  private def applyLineBased(compilationOutput: Output) = {
     val errorJson = Json.parse(compilationOutput.getErrorJson).as[JsObject]
 
-    val message: String = (errorJson \ "message").as[String]
+    val message: String = compilationOutput.getErrorMessage
     val line = (errorJson \ "line").as[Int]
     val column = (errorJson \ "column").as[Int]
-    val source = new File((errorJson \ "file").as[String])
-    val lineContent = Source.fromFile(source).getLines().drop(line - 1).next
+    val source = new File(compilationOutput.getErrorFile)
+    val lineContent = compilationOutput.getErrorSrc.split("\n").drop(line - 1).head
 
-    new SassCompilerException(message, line, column - 1, lineContent, source)
+    new SassCompilerLineBasedException(message, line, column - 1, lineContent, source)
+  }
+  private def applyGeneric(compilationOutput: Output) = {
+    new SassCompilerGenericException(compilationOutput.getErrorMessage)
   }
 }

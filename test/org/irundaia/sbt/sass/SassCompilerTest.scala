@@ -18,7 +18,7 @@ package org.irundaia.sbt.sass
 
 import java.io.File
 
-import org.irundaia.sbt.sass.compiler.{SassCompilerException, SassCompiler, CompilerSettings}
+import org.irundaia.sbt.sass.compiler.{SassCompilerLineBasedException, SassCompiler, CompilerSettings}
 import org.scalatest.{FunSpec, MustMatchers}
 import play.api.libs.json.Json
 
@@ -103,16 +103,16 @@ class SassCompilerTest extends FunSpec with MustMatchers {
       val output = File.createTempFile("sbt-sass-test", ".css")
       val map = File.createTempFile("sbt-sass-test", ".css.map")
 
-      describe("the thrown exception") {
-        val exception = the[SassCompilerException] thrownBy
+      describe("should throw an exception") {
+        val exception = the[SassCompilerLineBasedException] thrownBy
           new SassCompiler(compilerSettings)
             .doCompile(input, output, map)
 
-        it("should report Invalid CSS") {
+        it("reporting Invalid CSS") {
           exception.getMessage must include("Invalid CSS after ")
         }
 
-        it("should have an error on line 2 column 16") {
+        it("reporting an error on line 2 column 16") {
           exception.line mustBe 2
           exception.column mustBe 16
         }
