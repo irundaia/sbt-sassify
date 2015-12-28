@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/irundaia/sbt-sassify.svg?branch=master)](https://travis-ci.org/irundaia/sbt-sassify)
+[ ![Download](https://api.bintray.com/packages/irundaia/sbt-plugins/sbt-sassify/images/download.svg) ](https://bintray.com/irundaia/sbt-plugins/sbt-sassify/_latestVersion)[![Build Status](https://travis-ci.org/irundaia/sbt-sassify.svg?branch=master)](https://travis-ci.org/irundaia/sbt-sassify)
 
 # Sass plugin for sbt
 
