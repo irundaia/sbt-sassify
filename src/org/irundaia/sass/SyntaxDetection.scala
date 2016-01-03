@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.irundaia.sbt.sass
+package org.irundaia.sass
 
 sealed trait SyntaxDetection
 case object Auto extends SyntaxDetection

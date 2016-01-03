@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package org.irundaia.sbt.sass
+package org.irundaia
 
+import com.typesafe.sbt.web.incremental.OpSuccess
 
-sealed trait CssStyle
-object Minified extends CssStyle
-object Maxified extends CssStyle
-object Sassy extends CssStyle
+package object sass {
+  type CompilationResult = OpSuccess
+}

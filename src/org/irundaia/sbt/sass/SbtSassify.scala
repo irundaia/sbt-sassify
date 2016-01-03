@@ -20,7 +20,7 @@ import com.typesafe.sbt.web.Import.WebKeys._
 import com.typesafe.sbt.web.SbtWeb.autoImport._
 import com.typesafe.sbt.web._
 import com.typesafe.sbt.web.incremental.{OpFailure, OpInputHash, OpInputHasher, OpResult}
-import org.irundaia.sbt.sass.compiler.{CompilerSettings, SassCompiler, SassCompilerLineBasedException}
+import org.irundaia.sass._
 import sbt.Keys._
 import sbt._
 import xsbti.{Problem, Severity}
@@ -28,23 +28,26 @@ import xsbti.{Problem, Severity}
 import scala.language.implicitConversions
 import scala.util.{Failure, Success, Try}
 
-object SassKeys {
-  val sassify = TaskKey[Seq[File]]("sassify", "Generate css files from scss and sass files.")
-
-  val cssStyle = SettingKey[CssStyle]("cssStyle", "The style of the to-be-output CSS files.")
-  val generateSourceMaps =
-    SettingKey[Boolean]("generateSourceMaps", "Whether or not source map files should be generated.")
-  val embedSources =
-    SettingKey[Boolean]("embedSources", "Whether or not the source files should be embedded in the source map.")
-  val syntaxDetection =
-    SettingKey[SyntaxDetection]("syntaxDetection", "How to determine whether the sass/scss syntax is used.")
-  val assetRootURL = SettingKey[String]("assetRootURL", "The base URL used to locate the assets.")
-}
-
 object SbtSassify extends AutoPlugin {
   override def requires: Plugins = SbtWeb
   override def trigger: PluginTrigger = AllRequirements
-  import SassKeys._
+
+  object autoImport {
+    object SassKeys {
+      val sassify = TaskKey[Seq[File]]("sassify", "Generate css files from scss and sass files.")
+
+      val cssStyle = SettingKey[CssStyle]("cssStyle", "The style of the to-be-output CSS files.")
+      val generateSourceMaps =
+        SettingKey[Boolean]("generateSourceMaps", "Whether or not source map files should be generated.")
+      val embedSources =
+        SettingKey[Boolean]("embedSources", "Whether or not the source files should be embedded in the source map.")
+      val syntaxDetection =
+        SettingKey[SyntaxDetection]("syntaxDetection", "How to determine whether the sass/scss syntax is used.")
+      val assetRootURL = SettingKey[String]("assetRootURL", "The base URL used to locate the assets.")
+    }
+  }
+
+  import autoImport.SassKeys._
 
   override lazy val buildSettings = Seq(
     cssStyle := Minified,
@@ -68,8 +71,13 @@ object SbtSassify extends AutoPlugin {
       val webJarsDir = (webJarsDirectory in Assets).value
 
       val sources = (sourceDir ** ((includeFilter in sassify in Assets).value -- (excludeFilter in sassify in Assets).value)).get
-      lazy val compilerSettings =
-        CompilerSettings(cssStyle.value, generateSourceMaps.value, embedSources.value, syntaxDetection.value, Seq(sourceDir, webJarsDir), assetRootURL.value)
+      lazy val compilerSettings = CompilerSettings(
+        cssStyle.value,
+        generateSourceMaps.value,
+        embedSources.value,
+        syntaxDetection.value,
+        Seq(sourceDir.toPath, webJarsDir.toPath),
+        assetRootURL.value)
 
       implicit val fileHasherIncludingOptions: OpInputHasher[File] =
         OpInputHasher[File](f => OpInputHash.hashString(f.getCanonicalPath + compilerSettings.toString))
@@ -80,9 +88,8 @@ object SbtSassify extends AutoPlugin {
             streams.value.log.info(s"Sass compiling on ${modifiedSources.size} source(s)")
 
           // Compile all modified sources
-          val compiler = new SassCompiler(compilerSettings)
           val compilationResults: Map[File, Try[CompilationResult]] = modifiedSources
-            .map(inputFile => inputFile -> compiler.compile(inputFile, sourceDir, targetDir))
+            .map(inputFile => inputFile -> SassCompiler.compile(inputFile, sourceDir, targetDir, compilerSettings))
             .toMap
 
           // Collect OpResults
@@ -93,7 +100,7 @@ object SbtSassify extends AutoPlugin {
 
           // Report compilation problems
           val problems: Seq[Problem] = compilationResults.collect {
-            case (_, Failure(e: SassCompilerLineBasedException)) =>
+            case (_, Failure(e: LineBasedCompilerException)) =>
               new LineBasedProblem(
                 e.message,
                 Severity.Error,

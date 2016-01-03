@@ -16,8 +16,12 @@
 
 package org.irundaia.sbt
 
-import com.typesafe.sbt.web.incremental.OpSuccess
-
 package object sass {
-  type CompilationResult = OpSuccess
+  val Auto = org.irundaia.sass.Auto
+  val ForceScss = org.irundaia.sass.ForceScss
+  val ForceSass = org.irundaia.sass.ForceSass
+
+  val Minified = org.irundaia.sass.Minified
+  val Maxified = org.irundaia.sass.Maxified
+  val Sassy = org.irundaia.sass.Sassy
 }

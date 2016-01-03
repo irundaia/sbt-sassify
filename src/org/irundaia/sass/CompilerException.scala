@@ -14,50 +14,47 @@
  * limitations under the License.
  */
 
-package org.irundaia.sbt.sass.compiler
+package org.irundaia.sass
 
 import java.io.File
 
-import com.typesafe.sbt.web.LineBasedProblem
-import io.bit3.jsass.Output
 import play.api.libs.json.{JsObject, Json}
-import xsbti.{Problem, Severity}
 
 import scala.io.Source
 
-sealed trait SassCompilerException extends RuntimeException
-case class SassCompilerLineBasedException(message: String, line: Int, column: Int, lineContent: String, source: File)
-  extends SassCompilerException {
+sealed trait CompilerException extends RuntimeException
+case class LineBasedCompilerException(message: String, line: Int, column: Int, lineContent: String, source: File)
+  extends CompilerException {
   override def getMessage: String =
     s"""Compilation error on line $line of $source:
         |$lineContent
         |${" " * column}^
         |$message""".stripMargin
 }
-case class SassCompilerGenericException(message: String) extends SassCompilerException {
+case class GenericCompilerException(message: String) extends CompilerException {
   override def getMessage: String =
     s"""Compilation error:
        |$message
      """.stripMargin
 }
 
-object SassCompilerException {
-  def apply(compilationOutput: Output): SassCompilerException = {
-    if (compilationOutput.getErrorStatus == 1) applyLineBased(compilationOutput) else applyGeneric(compilationOutput)
+object CompilerException {
+  def apply(compilationOutput: Output): CompilerException = {
+    if (compilationOutput.errorStatus == 1) applyLineBased(compilationOutput) else applyGeneric(compilationOutput)
   }
 
   private def applyLineBased(compilationOutput: Output) = {
-    val errorJson = Json.parse(compilationOutput.getErrorJson).as[JsObject]
+    val errorJson = Json.parse(compilationOutput.errorJson).as[JsObject]
 
-    val message: String = compilationOutput.getErrorMessage
+    val message: String = compilationOutput.errorMessage
     val line = (errorJson \ "line").as[Int]
     val column = (errorJson \ "column").as[Int]
-    val source = new File(compilationOutput.getErrorFile)
-    val lineContent = compilationOutput.getErrorSrc.split("\n").drop(line - 1).head
+    val source = new File(compilationOutput.errorFile)
+    val lineContent = Source.fromFile(source).getLines().drop(line - 1).next
 
-    new SassCompilerLineBasedException(message, line, column - 1, lineContent, source)
+    new LineBasedCompilerException(message, line, column - 1, lineContent, source)
   }
   private def applyGeneric(compilationOutput: Output) = {
-    new SassCompilerGenericException(compilationOutput.getErrorMessage)
+    new GenericCompilerException(compilationOutput.errorMessage)
   }
 }
