@@ -1,0 +1,3 @@
+[submodule "native-src"]
+	path = native-src
+	url = https://github.com/sass/libsass.git

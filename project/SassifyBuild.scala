@@ -53,7 +53,6 @@ object SassifyBuild extends Build {
   val scalaStyleSettings = Seq (
     testScalastyle := org.scalastyle.sbt.ScalastylePlugin.scalastyle.in(Compile).toTask("").value,
     test <<= test in Test dependsOn testScalastyle
-
   )
 
   // File copyright headers
