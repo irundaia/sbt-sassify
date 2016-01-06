@@ -2,6 +2,10 @@ name := "sbt-sassify"
 organization := "org.irundaia.sbt"
 sbtPlugin := true
 
+fork in Test := true
+
+javaOptions += "-Djna.nosys=true"
+
 addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.2.2")
 
 libraryDependencies ++= Seq(

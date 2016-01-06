@@ -16,7 +16,6 @@
 
 package org.irundaia.sass
 
-import java.io.File
 import java.nio.file.Path
 
 case class CompilerSettings(
@@ -27,7 +26,7 @@ case class CompilerSettings(
      includePaths: Seq[Path],
      sourceMapRoot: String){
 
-  def applySettings(sourceFile: File, options: Options): Unit = {
+  def applySettings(sourceFile: Path, options: Options): Unit = {
     options.indentedSyntaxSrc = syntaxDetection match {
       case Auto => sourceFile.toString.endsWith("sass")
       case ForceSass => true

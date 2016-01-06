@@ -17,7 +17,7 @@
 package org.irundaia.sass
 
 import java.io.File
-import java.nio.file.Files
+import java.nio.file.{Paths, Files}
 
 import org.scalatest.{FunSpec, MustMatchers}
 import play.api.libs.json.Json
@@ -26,21 +26,21 @@ import scala.io.Source
 import scala.util.Failure
 
 class SassCompilerTest extends FunSpec with MustMatchers {
-  val testDir = Files.createTempDirectory("sbt-sassify").toFile
+  val testDir = Files.createTempDirectory("sbt-sassify")
   val compilerSettings = CompilerSettings(Minified, true, true, Auto, Seq(), "")
 
   describe("The SassCompiler") {
     describe("using well formed scss input") {
       describe("without includes") {
-        val input = new File(getClass.getResource("/org/irundaia/sass/well-formed.scss").toURI)
-        val compilationResults = SassCompiler.compile(input, input.getParentFile, testDir, compilerSettings)
+        val input = Paths.get(getClass.getResource("/org/irundaia/sass/well-formed.scss").toURI)
+        val compilationResults = SassCompiler.compile(input, input.getParent, testDir, compilerSettings)
 
         it("should compile") {
           compilationResults.isSuccess mustBe true
         }
 
         it("should contain the proper contents") {
-          val cssMin = Source.fromFile(compilationResults.get.filesWritten.filter(_.toString.endsWith("css")).head).mkString
+          val cssMin = Source.fromFile(compilationResults.get.filesWritten.filter(_.toString.endsWith("css")).head.toFile).mkString
           val testMinCss = cssMin.replaceAll("\\/\\*.*?\\*\\/", "").replaceAll("\\s+", "")
 
           testMinCss must include(".test{font-size:10px")
@@ -52,11 +52,11 @@ class SassCompilerTest extends FunSpec with MustMatchers {
         }
 
         it("should have read the correct file") {
-          compilationResults.get.filesRead.head.getCanonicalPath must include("well-formed.scss")
+          compilationResults.get.filesRead.head.toString must endWith("well-formed.scss")
         }
 
         it ("the source map should not have an entry in the sourcesContent field referring to jsass") {
-          val cssMin = Source.fromFile(compilationResults.get.filesWritten.filter(_.toString.endsWith("map")).head).getLines().mkString("\n")
+          val cssMin = Source.fromFile(compilationResults.get.filesWritten.filter(_.toString.endsWith("map")).head.toFile).getLines().mkString("\n")
           val parsedSourceMap = Json.parse(cssMin)
           val jsassContents = (parsedSourceMap \ "sourcesContent").as[Seq[String]].filter(_.startsWith("$jsass-void"))
 
@@ -65,15 +65,15 @@ class SassCompilerTest extends FunSpec with MustMatchers {
       }
 
       describe("with includes") {
-        val input = new File(getClass.getResource("/org/irundaia/sass/well-formed-using-import.scss").toURI)
-        val compilationResults = SassCompiler.compile(input, input.getParentFile, testDir, compilerSettings)
+        val input = Paths.get(getClass.getResource("/org/irundaia/sass/well-formed-using-import.scss").toURI)
+        val compilationResults = SassCompiler.compile(input, input.getParent, testDir, compilerSettings)
 
         it("should compile") {
           compilationResults.isSuccess mustBe true
         }
 
         it("should include the contents of both the included and the including file") {
-          val cssMin = Source.fromFile(compilationResults.get.filesWritten.filter(_.toString.endsWith("css")).head).mkString
+          val cssMin = Source.fromFile(compilationResults.get.filesWritten.filter(_.toString.endsWith("css")).head.toFile).mkString
           val testMinCss = cssMin.replaceAll("\\/\\*.*?\\*\\/", "").replaceAll("\\s+", "")
 
           testMinCss must include(".test-import{font-weight:bold")
@@ -86,14 +86,14 @@ class SassCompilerTest extends FunSpec with MustMatchers {
         }
 
         it("should have read the included file") {
-          compilationResults.get.filesRead.map(_.getCanonicalPath).find(_.contains("_well-formed-import.scss")) must not be None
+          compilationResults.get.filesRead.filter(_.endsWith("_well-formed-import.scss")) must not be None
         }
       }
     }
 
     describe("using broken scss input") {
-      val input = new File(getClass.getResource("/org/irundaia/sass/broken-input.scss").toURI)
-      val compilationResult = SassCompiler.compile(input, input.getParentFile, testDir, compilerSettings)
+      val input = Paths.get(getClass.getResource("/org/irundaia/sass/broken-input.scss").toURI)
+      val compilationResult = SassCompiler.compile(input, input.getParent, testDir, compilerSettings)
 
       describe("should fail compilation") {
         compilationResult.isFailure mustBe true

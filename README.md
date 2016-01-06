@@ -1,6 +1,5 @@
+# sbt-sassify: Sass for SBT
 [ ![Download](https://api.bintray.com/packages/irundaia/sbt-plugins/sbt-sassify/images/download.svg) ](https://bintray.com/irundaia/sbt-plugins/sbt-sassify/_latestVersion)[![Build Status](https://travis-ci.org/irundaia/sbt-sassify.svg?branch=master)](https://travis-ci.org/irundaia/sbt-sassify)
-
-# Sass plugin for sbt
 
 An sbt plugin that enables you to use [Sass](http://sass-lang.com/) in your [sbt-web](https://github.com/sbt/sbt-web) project.
 
@@ -125,4 +124,4 @@ sbt-sassify uses [semantic versioning](http://semver.org). Given a version numbe
 
 1. Only one Sass syntax style can be used at the same time. So when compiling a .scss file, one cannot include a .sass file. (Well, you can, but it won't compile.)
 
-2. Due to lacking binaries, this plugin cannot be used on 32bit linux distributions.
+2. Due to a lack of testing, this plugin might not work on 32bit linux distributions.

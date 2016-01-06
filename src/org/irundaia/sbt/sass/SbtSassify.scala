@@ -19,7 +19,7 @@ package org.irundaia.sbt.sass
 import com.typesafe.sbt.web.Import.WebKeys._
 import com.typesafe.sbt.web.SbtWeb.autoImport._
 import com.typesafe.sbt.web._
-import com.typesafe.sbt.web.incremental.{OpFailure, OpInputHash, OpInputHasher, OpResult}
+import com.typesafe.sbt.web.incremental._
 import org.irundaia.sass._
 import sbt.Keys._
 import sbt._
@@ -54,7 +54,8 @@ object SbtSassify extends AutoPlugin {
     generateSourceMaps := true,
     embedSources := true,
     syntaxDetection := Auto,
-    assetRootURL := "/assets/"
+    assetRootURL := "/assets/",
+    javaOptions += "-Djna.nosys=true"
   )
 
   val baseSbtSassifySettings = Seq(
@@ -88,13 +89,13 @@ object SbtSassify extends AutoPlugin {
             streams.value.log.info(s"Sass compiling on ${modifiedSources.size} source(s)")
 
           // Compile all modified sources
-          val compilationResults: Map[File, Try[CompilationResult]] = modifiedSources
-            .map(inputFile => inputFile -> SassCompiler.compile(inputFile, sourceDir, targetDir, compilerSettings))
+          val compilationResults: Map[File, CompilationResult] = modifiedSources
+            .map(inputFile => inputFile -> SassCompiler.compile(inputFile.toPath, sourceDir.toPath, targetDir.toPath, compilerSettings))
             .toMap
 
           // Collect OpResults
           val opResults: Map[File, OpResult] = compilationResults.mapValues {
-            case Success(compResult) => compResult // Note that a CompilationResult is a OpSuccess
+            case Success(result) => OpSuccess(result.filesRead.map(_.toFile), result.filesWritten.map(_.toFile))
             case Failure(_) => OpFailure
           }
 
@@ -120,7 +121,7 @@ object SbtSassify extends AutoPlugin {
             .flatMap(_.toOption)
             .map(_.filesWritten)
             .foldLeft(Seq.empty[File]){
-              case (acc, addedFiles) => acc ++ addedFiles
+              case (acc, addedFiles) => acc ++ addedFiles.map(_.toFile)
             }
 
           if (createdFiles.nonEmpty)

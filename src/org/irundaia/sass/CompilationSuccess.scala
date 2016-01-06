@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package org.irundaia
+package org.irundaia.sass
 
-import scala.util.Try
+import java.nio.file.Path
 
-package object sass {
-  type CompilationResult = Try[CompilationSuccess]
-}
+case class CompilationSuccess(filesRead: Set[Path], filesWritten: Set[Path])

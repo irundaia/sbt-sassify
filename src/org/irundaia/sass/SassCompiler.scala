@@ -16,9 +16,7 @@
 
 package org.irundaia.sass
 
-import java.io.{File, FileWriter}
-import java.nio.file.Path
-import java.util.regex.Pattern
+import java.nio.file.{Files, Path}
 import org.irundaia.sass.jna.SassLibrary
 import org.irundaia.sourcemap.SourceMapping
 import play.api.libs.json._
@@ -26,17 +24,17 @@ import play.api.libs.json._
 import scala.util.{Failure, Success, Try}
 
 object SassCompiler {
-  def compile(sass: File, sourceDir: File, targetDir: File, compilerSettings: CompilerSettings): Try[CompilationResult] = {
+  def compile(sass: Path, sourceDir: Path, targetDir: Path, compilerSettings: CompilerSettings): CompilationResult = {
     // Determine the source filename (relative to the source directory)
-    val fileName = sass.getPath.replaceAll(Pattern.quote(sourceDir.getPath), "").replaceFirst("""\.\w+""", "")
-    def sourceWithExtn(extn: String): File = new File(s"$targetDir$fileName.$extn")
+    val fileName = sass.getFileName.toString.replaceFirst("""\.\w+""", "")
+    def sourceWithExtn(extn: String): Path = targetDir.resolve(s"$fileName.$extn")
 
     // Determine target files
     val css = sourceWithExtn("css")
     val sourceMap = sourceWithExtn("css.map")
 
     // Make sure that the target directory is created
-    css.getParentFile.mkdirs()
+    Files.createDirectories(css.getParent)
 
     // Compile the sources, and get the dependencies
     val output = doCompile(sass, css, sourceMap, compilerSettings)
@@ -44,18 +42,18 @@ object SassCompiler {
     // Output the CSS or throw an exception when compilation failed
     output.map{case results =>
       outputCss(results, css)
-      outputSourceMap(sass, sourceMap, results, sass.getParent, compilerSettings)
+      outputSourceMap(sass, sourceMap, results, compilerSettings)
       determineCompilationDependencies(results, sass, css, sourceMap)
     }
   }
 
-  def doCompile(source: File, target: File, map: File, compilerSettings: CompilerSettings): Try[Output] = {
-    var context = Context(source.toPath)
+  def doCompile(source: Path, target: Path, map: Path, compilerSettings: CompilerSettings): Try[Output] = {
+    val context = Context(source)
 
     compilerSettings.applySettings(source, context.options)
-    context.options.inputPath = source.toPath
-    context.options.outputPath = target.toPath
-    context.options.sourceMapPath = map.toPath
+    context.options.inputPath = source
+    context.options.outputPath = target
+    context.options.sourceMapPath = map
 
     val compileStatus = SassLibrary.INSTANCE.sass_compile_file_context(context.nativeContext)
     val output = Output(context)
@@ -68,28 +66,18 @@ object SassCompiler {
       Success(output)
   }
 
-  private def outputCss(compilationResult: Output, css: File) = {
-      val cssWriter = new FileWriter(css)
+  private def outputCss(compilationResult: Output, css: Path) = Files.write(css, compilationResult.css.getBytes)
 
-      cssWriter.write(compilationResult.css)
-      cssWriter.flush()
-      cssWriter.close()
-    }
-
-  private def outputSourceMap(source: File, sourceMap: File, output: Output, sourceDir: String, compilerSettings: CompilerSettings) =
+  private def outputSourceMap(source: Path, sourceMap: Path, output: Output, compilerSettings: CompilerSettings) =
     Option(output.sourceMap) match {
       case Some(sourceMapContent) if compilerSettings.generateSourceMaps =>
-        val revisedMap = fixSourceMap(sourceMapContent, compilerSettings, source.getParent, sourceDir)
-        val mapWriter = new FileWriter(sourceMap)
-
-        mapWriter.write(revisedMap)
-        mapWriter.flush()
-        mapWriter.close()
+        val revisedMap = fixSourceMap(sourceMapContent, compilerSettings, source.getParent)
+        Files.write(sourceMap, revisedMap.getBytes)
       case _ => // Do not output any source map
     }
 
-  def determineCompilationDependencies(compilationResult: Output, sass: File, css: File, sourceMap: File): CompilationResult = {
-    val filesWritten = if (sourceMap.exists)
+  def determineCompilationDependencies(compilationResult: Output, sass: Path, css: Path, sourceMap: Path): CompilationSuccess = {
+    val filesWritten = if (Files.exists(sourceMap))
       Set(css, sourceMap)
     else
       Set(css)
@@ -97,34 +85,33 @@ object SassCompiler {
     // Extract the file dependencies from the source map.
     Option(compilationResult.sourceMap) match {
       case Some(sourceMapContent) =>
-        new CompilationResult(extractDependencies(css.getParent, sourceMapContent).filter(_.exists).toSet, filesWritten)
+        CompilationSuccess(extractDependencies(css.getParent, sourceMapContent).filter(Files.exists(_)).toSet, filesWritten)
       case None =>
-        new CompilationResult(Set(normalizeFile(sass)), filesWritten)
+        CompilationSuccess(Set(sass.normalize()), filesWritten)
     }
   }
 
-  private def extractDependencies(baseDir: String, originalSourceMap: String): Seq[File] =
-    // Map to a file to get the normalized path because libsass does not use platform specific separators
+  private def extractDependencies(baseDir: Path, originalSourceMap: String): Seq[Path] =
     normalizeFiles(baseDir, (Json.parse(originalSourceMap) \ "sources")
       .as[Seq[String]])
 
-  private def fixSourceMap(originalSourceMap: String, compilerSettings: CompilerSettings, baseDir: String, sourceDir: String): String = {
+  private def fixSourceMap(originalSourceMap: String, compilerSettings: CompilerSettings, baseDir: Path): String = {
     val parsedSourceMap = Json.parse(originalSourceMap).as[JsObject]
     // Combine source file references with their contents
     val sources = normalizeFiles(baseDir, (parsedSourceMap \ "sources").as[Seq[String]])
     val sourcesWithContents = sources
       .zip((parsedSourceMap \ "sourcesContent").toOption.map(_.as[Seq[String]]).getOrElse(Stream.continually("")))
       .toMap
-      .filterKeys(_.exists) // Filter non-existing sources
+      .filterKeys(Files.exists(_)) // Filter non-existing sources
 
     // Exclude unknown files from the mappings
-    val excludedSources = sources.zipWithIndex.toMap.filterKeys(!_.exists)
+    val excludedSources = sources.zipWithIndex.toMap.filterKeys(!Files.exists(_))
     val mappings = (parsedSourceMap \ "mappings").toOption.map(_.as[String]).getOrElse("")
     val mappingsWithoutExcludedSources = excludeMappings(SourceMapping.decode(mappings), excludedSources.values.toSet)
 
     // Use relative file names to make sure that the browser can find the files when they are moved to the target dir
     val transformedSources = sourcesWithContents.keys
-        .map(convertToRelativePath(_, compilerSettings.includePaths))
+        .map(convertToRelativePath(_, compilerSettings.includePaths).toString)
         .map(JsString.apply)
 
     // Update the source map with the newly computed sources (contents)
@@ -151,20 +138,18 @@ object SassCompiler {
             sourceFileIndex = mapping.sourceFileIndex - fileIndicesWithDeltas(mapping.sourceFileIndex))))
   }
 
-  private def normalizeFiles(baseDir: String, fileNames: Iterable[String]): Seq[File] =
+  private def normalizeFiles(baseDir: Path, fileNames: Iterable[String]): Seq[Path] =
     fileNames
-      .map(f => normalizeFile(new File(s"""$baseDir/$f""")))
+      .map(f => baseDir.resolve(f).normalize())
       .toSeq
 
-  private def normalizeFile(f: File): File = f.toPath.normalize.toFile
-
-  private def convertToRelativePath(file: File, includePaths: Iterable[Path]): String = {
-    val normalizedPath = file.toPath.normalize.toString
-    val ancestorDir = includePaths.find(includePath => normalizedPath.startsWith(includePath.toString))
+  private def convertToRelativePath(file: Path, includePaths: Iterable[Path]): Path = {
+    val normalizedPath = file.normalize
+    val ancestorDir = includePaths.find(includePath => normalizedPath.startsWith(includePath))
 
     ancestorDir match {
       case None => normalizedPath
-      case Some(ancestor) => normalizedPath.replaceFirst(Pattern.quote(ancestor + "/"), "")
+      case Some(ancestor) => ancestor.relativize(normalizedPath)
     }
   }
 }

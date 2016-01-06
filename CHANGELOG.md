@@ -49,3 +49,7 @@
 - Use the libsass error code to determine whether the compilation succeeded or not
 - Make sure that assets can be found (now that absolute URL's are used in the source map)
 - Update the source mappings to exclude filtered files.
+
+## 1.4.1
+- Move from `jsass`` to a custom `libsass`` wrapper
+- Rewrite `sbt-sassify` to use `Path`s rather than `File`s. (Why implement things yourself when it's already done in `Java`')
