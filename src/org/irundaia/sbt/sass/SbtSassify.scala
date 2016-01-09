@@ -35,7 +35,6 @@ object SbtSassify extends AutoPlugin {
   object autoImport {
     object SassKeys {
       val sassify = TaskKey[Seq[File]]("sassify", "Generate css files from scss and sass files.")
-
       val cssStyle = SettingKey[CssStyle]("cssStyle", "The style of the to-be-output CSS files.")
       val generateSourceMaps =
         SettingKey[Boolean]("generateSourceMaps", "Whether or not source map files should be generated.")

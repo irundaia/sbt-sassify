@@ -26,7 +26,7 @@ import scala.util.{Failure, Success, Try}
 object SassCompiler {
   def compile(sass: Path, sourceDir: Path, targetDir: Path, compilerSettings: CompilerSettings): CompilationResult = {
     // Determine the source filename (relative to the source directory)
-    val fileName = sass.getFileName.toString.replaceFirst("""\.\w+""", "")
+    val fileName = sourceDir.relativize(sass).toString.replaceFirst("""\.\w+$""", "")
     def sourceWithExtn(extn: String): Path = targetDir.resolve(s"$fileName.$extn")
 
     // Determine target files
@@ -71,7 +71,7 @@ object SassCompiler {
   private def outputSourceMap(source: Path, sourceMap: Path, output: Output, compilerSettings: CompilerSettings) =
     Option(output.sourceMap) match {
       case Some(sourceMapContent) if compilerSettings.generateSourceMaps =>
-        val revisedMap = fixSourceMap(sourceMapContent, compilerSettings, source.getParent)
+        val revisedMap = fixSourceMap(sourceMapContent, compilerSettings, sourceMap.getParent)
         Files.write(sourceMap, revisedMap.getBytes)
       case _ => // Do not output any source map
     }
@@ -87,7 +87,7 @@ object SassCompiler {
       case Some(sourceMapContent) =>
         CompilationSuccess(extractDependencies(css.getParent, sourceMapContent).filter(Files.exists(_)).toSet, filesWritten)
       case None =>
-        CompilationSuccess(Set(sass.normalize()), filesWritten)
+        CompilationSuccess(Set(sass.normalize), filesWritten)
     }
   }
 
@@ -140,7 +140,7 @@ object SassCompiler {
 
   private def normalizeFiles(baseDir: Path, fileNames: Iterable[String]): Seq[Path] =
     fileNames
-      .map(f => baseDir.resolve(f).normalize())
+      .map(f => baseDir.resolve(f).normalize)
       .toSeq
 
   private def convertToRelativePath(file: Path, includePaths: Iterable[Path]): Path = {
