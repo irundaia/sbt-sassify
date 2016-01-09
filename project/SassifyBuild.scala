@@ -51,7 +51,7 @@ object SassifyBuild extends Build {
     )
 
   lazy val testScalastyle = taskKey[Unit]("testScalastyle")
-  val scalaStyleSettings = Seq (
+  val scalaStyleSettings = Seq(
     testScalastyle := org.scalastyle.sbt.ScalastylePlugin.scalastyle.in(Compile).toTask("").value,
     test <<= test in Test dependsOn testScalastyle
   )
@@ -59,12 +59,12 @@ object SassifyBuild extends Build {
   // File copyright headers
   lazy val sbtSassify = project
     .in(file("."))
+    .enablePlugins(AutomateHeaderPlugin)
+    .enablePlugins(GitVersioning)
     .settings(directoryStructureSettings)
     .settings(compilerSettings)
     .settings(bintraySettings)
     .settings(copyrightSettings)
     .settings(scalaStyleSettings)
-    .enablePlugins(AutomateHeaderPlugin)
-    .enablePlugins(GitVersioning)
     .settings(git.gitUncommittedChanges := false)
 }
