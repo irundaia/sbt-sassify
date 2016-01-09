@@ -1,5 +1,6 @@
 import bintray.BintrayPlugin.autoImport._
 import com.typesafe.sbt.GitVersioning
+import com.typesafe.sbt.SbtGit.git
 import de.heikoseeberger.sbtheader.AutomateHeaderPlugin
 import de.heikoseeberger.sbtheader.license.Apache2_0
 import de.heikoseeberger.sbtheader.HeaderKey._
@@ -65,4 +66,5 @@ object SassifyBuild extends Build {
     .settings(scalaStyleSettings)
     .enablePlugins(AutomateHeaderPlugin)
     .enablePlugins(GitVersioning)
+    .settings(git.gitUncommittedChanges := false)
 }
