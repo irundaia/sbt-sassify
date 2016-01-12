@@ -14,7 +14,6 @@ import java.nio.ByteBuffer;
  */
 public interface SassLibrary extends Library {
 	public static final String JNA_LIBRARY_NAME = "sass";
-	public static final NativeLibrary JNA_NATIVE_LIB = NativeLibrary.getInstance(SassLibrary.JNA_LIBRARY_NAME);
 	public static final SassLibrary INSTANCE = (SassLibrary)Native.loadLibrary(SassLibrary.JNA_LIBRARY_NAME, SassLibrary.class);
 	/**
 	 * Different render styles<br>
