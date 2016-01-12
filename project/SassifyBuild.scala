@@ -6,6 +6,7 @@ import de.heikoseeberger.sbtheader.license.Apache2_0
 import de.heikoseeberger.sbtheader.HeaderKey._
 import sbt.Keys._
 import sbt._
+import ScriptedPlugin._
 
 object SassifyBuild extends Build {
 
@@ -56,6 +57,12 @@ object SassifyBuild extends Build {
     test <<= test in Test dependsOn testScalastyle
   )
 
+  val scriptedSettings = ScriptedPlugin.scriptedSettings ++ Seq(
+    ScriptedPlugin.scriptedBufferLog := false,
+    ScriptedPlugin.scriptedLaunchOpts <+= version { "-Dplugin.version=" + _ },
+    sbtTestDirectory := baseDirectory.value / "sbt-test"
+  )
+
   // File copyright headers
   lazy val sbtSassify = project
     .in(file("."))
@@ -63,6 +70,7 @@ object SassifyBuild extends Build {
     .enablePlugins(GitVersioning)
     .settings(directoryStructureSettings)
     .settings(compilerSettings)
+    .settings(scriptedSettings)
     .settings(bintraySettings)
     .settings(copyrightSettings)
     .settings(scalaStyleSettings)

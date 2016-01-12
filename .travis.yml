@@ -6,3 +6,5 @@ jdk:
 sudo: false
 notifications: 
   email: false
+script:
+  sbt test scripted
