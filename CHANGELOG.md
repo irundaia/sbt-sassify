@@ -51,5 +51,6 @@
 - Update the source mappings to exclude filtered files.
 
 ## 1.4.1
-- Move from `jsass`` to a custom `libsass`` wrapper
-- Rewrite `sbt-sassify` to use `Path`s rather than `File`s. (Why implement things yourself when it's already done in `Java`')
+- Move from `jsass` to a custom `libsass` wrapper
+- Rewrite `sbt-sassify` to use `Path`s rather than `File`s. (Why implement things yourself when it's already done in `Java`)
+- Fix bug for projects with spaces in their paths (see #5)
