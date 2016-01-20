@@ -1,0 +1,5 @@
+# Compile an scss file
+
+> assets
+
+$ exists target/web/public/main/stylesheets/basic.css target/web/public/main/stylesheets/basic.css.map

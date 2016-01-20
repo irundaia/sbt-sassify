@@ -1,0 +1,1 @@
+addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % sys.props("plugin.version"))
