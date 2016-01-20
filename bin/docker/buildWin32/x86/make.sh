@@ -27,5 +27,6 @@ BUILD=static \
     make -C native-src -j8 lib/libsass.dll || exit 1
 cp native-src/lib/libsass.dll resources/win32-x86/sass.dll || exit 1
 
+cd native-src
 git reset --hard # hard reset
 git clean -xdf # hard clean
