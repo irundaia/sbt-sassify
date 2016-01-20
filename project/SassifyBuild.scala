@@ -55,6 +55,7 @@ object SassifyBuild extends Build {
   lazy val testScalastyle = taskKey[Unit]("testScalastyle")
   val scalaStyleSettings = Seq(
     testScalastyle := org.scalastyle.sbt.ScalastylePlugin.scalastyle.in(Compile).toTask("").value,
+    org.scalastyle.sbt.ScalastylePlugin.scalastyleFailOnError := true,
     test <<= test in Test dependsOn testScalastyle
   )
 
