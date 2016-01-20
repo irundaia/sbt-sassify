@@ -16,6 +16,8 @@
 
 package org.irundaia.sbt.sass
 
+import java.time.{Duration, Instant}
+
 import com.typesafe.sbt.web.Import.WebKeys._
 import com.typesafe.sbt.web.SbtWeb.autoImport._
 import com.typesafe.sbt.web._
@@ -84,6 +86,8 @@ object SbtSassify extends AutoPlugin {
 
       val results = incremental.syncIncremental((streams in Assets).value.cacheDirectory / "run", sources) {
         modifiedSources: Seq[File] =>
+          val startInstant = Instant.now
+
           if (modifiedSources.nonEmpty)
             streams.value.log.info(s"Sass compiling on ${modifiedSources.size} source(s)")
 
@@ -123,8 +127,10 @@ object SbtSassify extends AutoPlugin {
               case (acc, addedFiles) => acc ++ addedFiles.map(_.toFile)
             }
 
+          val duration = Duration.between(startInstant, Instant.now).toMillis
+
           if (createdFiles.nonEmpty)
-            streams.value.log.info(s"Sass compilation done. ${createdFiles.size} resulting css/source map file(s)")
+            streams.value.log.info(s"Sass compilation done in $duration ms. ${createdFiles.size} resulting css/source map file(s)")
 
           (opResults, createdFiles)
       }(fileHasherIncludingOptions)
