@@ -18,7 +18,6 @@ package org.irundaia.sass
 
 import java.nio.file.{Files, Path}
 import org.irundaia.sass.jna.SassLibrary
-import org.irundaia.sourcemap.SourceMapping
 import play.api.libs.json._
 
 import scala.util.{Failure, Success, Try}
@@ -98,45 +97,19 @@ object SassCompiler {
 
   private def fixSourceMap(originalSourceMap: String, compilerSettings: CompilerSettings, baseDir: Path): String = {
     val parsedSourceMap = Json.parse(originalSourceMap).as[JsObject]
-    // Combine source file references with their contents
-    val sources = normalizeFiles(baseDir, (parsedSourceMap \ "sources").as[Seq[String]])
-    val sourcesWithContents = sources
-      .zip((parsedSourceMap \ "sourcesContent").toOption.map(_.as[Seq[String]]).getOrElse(Stream.continually("")))
-      .toMap
-      .filterKeys(Files.exists(_)) // Filter non-existing sources
-
-    // Exclude unknown files from the mappings
-    val excludedSources = sources.zipWithIndex.toMap.filterKeys(!Files.exists(_))
-    val mappings = (parsedSourceMap \ "mappings").toOption.map(_.as[String]).getOrElse("")
-    val mappingsWithoutExcludedSources = excludeMappings(SourceMapping.decode(mappings), excludedSources.values.toSet)
 
     // Use relative file names to make sure that the browser can find the files when they are moved to the target dir
-    val transformedSources = sourcesWithContents.keys
-        .map(convertToRelativePath(_, compilerSettings.includePaths).toString)
-        .map(JsString.apply)
+    val sources = (parsedSourceMap \ "sources").as[Seq[String]]
+    val transformedSources =
+      normalizeFiles(baseDir, sources) // Get absolute paths
+        .map(convertToRelativePath(_, compilerSettings.includePaths).toString) // Transform to relative paths relative to the include paths
+        .map(JsString.apply) // Convert to JSON values
 
     // Update the source map with the newly computed sources (contents)
-    val updatedMap = if (compilerSettings.embedSources)
-        parsedSourceMap ++
-          Json.obj("sources" -> JsArray(transformedSources.toSeq)) ++
-          Json.obj("mappings" -> JsString(mappingsWithoutExcludedSources)) ++
-          Json.obj("sourcesContent" -> JsArray(sourcesWithContents.values.map(JsString).toSeq))
-      else
-        parsedSourceMap ++
-          Json.obj("sources" -> JsArray(transformedSources.toSeq)) ++
-          Json.obj("mappings" -> JsString(mappingsWithoutExcludedSources))
+    val updatedMap = parsedSourceMap ++
+          Json.obj("sources" -> JsArray(transformedSources.toSeq))
 
     Json.prettyPrint(updatedMap)
-  }
-
-  private def excludeMappings(mappings: Seq[SourceMapping], excludedFileIndices: Set[Int]): String = {
-    val fileIndicesWithDeltas = mappings.map(_.sourceFileIndex).toSet[Int].map(fileIndex => (fileIndex, excludedFileIndices.count(_ < fileIndex))).toMap
-    SourceMapping.encode(
-      mappings
-        .filterNot(mapping => excludedFileIndices.contains(mapping.sourceFileIndex))
-        .map(mapping =>
-          mapping.copy(
-            sourceFileIndex = mapping.sourceFileIndex - fileIndicesWithDeltas(mapping.sourceFileIndex))))
   }
 
   private def normalizeFiles(baseDir: Path, fileNames: Iterable[String]): Seq[Path] =
