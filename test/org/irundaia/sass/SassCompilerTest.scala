@@ -16,11 +16,9 @@
 
 package org.irundaia.sass
 
-import java.io.File
 import java.nio.file.{Paths, Files}
 
 import org.scalatest.{FunSpec, MustMatchers}
-import play.api.libs.json.Json
 
 import scala.io.Source
 import scala.util.Failure
@@ -53,14 +51,6 @@ class SassCompilerTest extends FunSpec with MustMatchers {
 
         it("should have read the correct file") {
           compilationResults.get.filesRead.head.toString must endWith("well-formed.scss")
-        }
-
-        it ("the source map should not have an entry in the sourcesContent field referring to jsass") {
-          val cssMin = Source.fromFile(compilationResults.get.filesWritten.filter(_.toString.endsWith("map")).head.toFile).getLines().mkString("\n")
-          val parsedSourceMap = Json.parse(cssMin)
-          val jsassContents = (parsedSourceMap \ "sourcesContent").as[Seq[String]].filter(_.startsWith("$jsass-void"))
-
-          jsassContents mustBe empty
         }
       }
 

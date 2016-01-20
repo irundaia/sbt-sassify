@@ -26,8 +26,9 @@ import scala.util.{Failure, Success, Try}
 object SassCompiler {
   def compile(sass: Path, sourceDir: Path, targetDir: Path, compilerSettings: CompilerSettings): CompilationResult = {
     // Determine the source filename (relative to the source directory)
-    val fileName = sourceDir.relativize(sass).toString.replaceFirst("""\.\w+$""", "")
-    def sourceWithExtn(extn: String): Path = targetDir.resolve(s"$fileName.$extn")
+    val targetSource = sourceDir.relativize(sass)
+    def sourceWithExtn(extn: String): Path =
+      targetDir.resolve(targetSource).resolveSibling(sass.getFileName.toString.replaceAll("""(.*\.)\w+""", s"""$$1$extn"""))
 
     // Determine target files
     val css = sourceWithExtn("css")
