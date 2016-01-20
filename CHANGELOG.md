@@ -54,3 +54,10 @@
 - Move from `jsass` to a custom `libsass` wrapper
 - Rewrite `sbt-sassify` to use `Path`s rather than `File`s. (Why implement things yourself when it's already done in `Java`)
 - Fix bug for projects with spaces in their paths (see #5)
+
+##1.4.2
+- Update to `libsass` 3.3.3 (#10)
+- Remove modifications to source maps (#7)
+- Write SBT scripted tests for including files (#6)
+- Log compile duration (#8)
+- Update copyright headers

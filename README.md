@@ -6,7 +6,7 @@ An sbt plugin that enables you to use [Sass](http://sass-lang.com/) in your [sbt
 This plugin is a reimplementation of [sbt-sass](https://github.com/ShaggyYeti/sbt-sass). Since I wasn't allowed to install the sass command line compiler on my company's' webserver (damn you corporate IT), I decided to rewrite the plugin to use [libsass](https://github.com/sass/libsass) instead. Due to these changes, the plugin no longer resembled the old plugin, which is why I decided to host it myself.
 
 ## Sass language version
-This plugin is based on [libsass](https://github.com/sass/libsass) version 3.3.2, that implements the Sass 3.4 specification.
+This plugin is based on [libsass](https://github.com/sass/libsass) version 3.3.3, that implements the Sass 3.4 specification.
 
 ## Compatibility
 The sbt-sassify plugin supports the following operating systems:
@@ -21,7 +21,7 @@ This plugin has been tested against sbt-web and the Play framework versions 1.2.
 To use the `sbt-sassify` plugin you can include the plugin in `project/plugins.sbt` or `project/sbt-sassify.sbt` like this:
 
 ```scala
-addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.4.1")
+addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.4.2")
 ```
 
 ### Directory structure
@@ -55,17 +55,17 @@ The Sass file outlined above, will be compiled into `public/stylesheets/main.css
 
 ## Mixing Sass and web-jars
 
-[WebJars](http://www.webjars.org) enable us to depend on client side libraries without pulling all dependencies into our own code base manually. To be able to use WebJars, you should include the `webjar-play` [plugin](https://github.com/webjars/webjars-play) in your library dependencies.
+[WebJars](http://www.webjars.org) enable us to depend on client side libraries without pulling all dependencies into our own code base manually.
 
-Compass is a library containing all sorts of reusable functions and mixins for Sass. Unfortunately, this library is targeted towards the Ruby implementation of Sass. There is a number of useful mixins that can be extracted from it. Fortunately, these mixins are wrapped in a web-jar.
+Compass is a library containing all sorts of reusable Sass functions and mixins. Unfortunately, it is targeted towards the Ruby implementation of Sass. Luckily, there is a number of useful mixins that can be extracted from it. These mixins are wrapped in a WebJar.
 
-Include the compass mixins in your project is as easy as including the web-jar dependency in your library dependencies. For example, within a `build.sbt` file:
+Including the compass mixins in your project is as easy as including the WebJar dependency in your library dependencies. For example, within a `build.sbt` file add:
 
 ```scala
 libraryDependencies += "org.webjars.bower" % "compass-mixins" % "0.12.7"
 ```
 
-sbt-web will automatically extract WebJars into a lib folder relative to your asset's target folder. Therefore, to use the Compass mixins you can import the mixins by:
+sbt-web will automatically extract WebJars into a `lib`` folder relative to your asset's target folder. Therefore, to use the Compass mixins you can import them by:
 
 ```scss
 @import "lib/compass-mixins/lib/compass";
@@ -124,4 +124,4 @@ sbt-sassify uses [semantic versioning](http://semver.org). Given a version numbe
 
 1. Only one Sass syntax style can be used at the same time. So when compiling a .scss file, one cannot include a .sass file. (Well, you can, but it won't compile.)
 
-2. Due to a lack of testing, this plugin might not work on 32bit linux distributions.
+2. Due to a lack of testing, this plugin might not work on all 32-bit linux distributions.
