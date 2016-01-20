@@ -50,7 +50,7 @@ case class Options(nativeOptions: SassLibrary.Sass_Options = SassLibrary.INSTANC
   def sourceMapEmbed_=(sourceMapEmbed: Boolean): Unit =
     SassLibrary.INSTANCE.sass_option_set_source_map_embed(this.nativeOptions, sourceMapEmbed)
 
-  def sourceMapContent: Boolean = SassLibrary.INSTANCE.sass_option_get_source_map_embed(this.nativeOptions)
+  def sourceMapContents: Boolean = SassLibrary.INSTANCE.sass_option_get_source_map_embed(this.nativeOptions)
   def sourceMapContents_=(b: Boolean): Unit = SassLibrary.INSTANCE.sass_option_set_source_map_contents(this.nativeOptions, b)
 
   def omitSourceMapUrl: Boolean = SassLibrary.INSTANCE.sass_option_get_omit_source_map_url(this.nativeOptions)

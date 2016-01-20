@@ -34,7 +34,7 @@ case class CompilerSettings(
     }
     options.outputStyle = outputStyle
     options.omitSourceMapUrl = !generateSourceMaps
-    options.sourceMapEmbed = embedSources
+    options.sourceMapContents = embedSources
     options.includePaths ++= includePaths
     options.sourceMapRoot = sourceMapRoot
   }
