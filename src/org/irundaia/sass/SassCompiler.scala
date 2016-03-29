@@ -16,13 +16,17 @@
 
 package org.irundaia.sass
 
+import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
+
 import org.irundaia.sass.jna.SassLibrary
 import play.api.libs.json._
 
 import scala.util.{Failure, Success, Try}
 
 object SassCompiler {
+  val charset = StandardCharsets.UTF_8
+
   def compile(sass: Path, sourceDir: Path, targetDir: Path, compilerSettings: CompilerSettings): CompilationResult = {
     // Determine the source filename (relative to the source directory)
     val targetSource = sourceDir.relativize(sass)
@@ -66,13 +70,13 @@ object SassCompiler {
       Success(output)
   }
 
-  private def outputCss(compilationResult: Output, css: Path) = Files.write(css, compilationResult.css.getBytes)
+  private def outputCss(compilationResult: Output, css: Path) = Files.write(css, compilationResult.css.getBytes(charset))
 
   private def outputSourceMap(source: Path, sourceMap: Path, output: Output, compilerSettings: CompilerSettings) =
     Option(output.sourceMap) match {
       case Some(sourceMapContent) if compilerSettings.generateSourceMaps =>
         val revisedMap = fixSourceMap(sourceMapContent, compilerSettings, sourceMap.getParent)
-        Files.write(sourceMap, revisedMap.getBytes)
+        Files.write(sourceMap, revisedMap.getBytes(charset))
       case _ => // Do not output any source map
     }
 
