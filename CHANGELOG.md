@@ -66,3 +66,6 @@
 - Update to `libsass` 3.3.4 (#12)
 - Update to `play-json` 2.4.6
 - Update to `scalatest` 2.2.6
+
+## 1.4.4
+- Fix character encoding when outputting CSS on Windows. (#13)
