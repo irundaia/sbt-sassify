@@ -34,11 +34,11 @@ class SassCompilerTest extends FunSpec with MustMatchers {
         val compilationResults = SassCompiler.compile(input, input.getParent, testDir, compilerSettings)
 
         it("should compile") {
-          compilationResults.isSuccess mustBe true
+          compilationResults.isRight mustBe true
         }
 
         it("should contain the proper contents") {
-          val cssMin = Source.fromFile(compilationResults.get.filesWritten.filter(_.toString.endsWith("css")).head.toFile).mkString
+          val cssMin = Source.fromFile(compilationResults.right.get.filesWritten.filter(_.toString.endsWith("css")).head.toFile).mkString
           val testMinCss = cssMin.replaceAll("\\/\\*.*?\\*\\/", "").replaceAll("\\s+", "")
 
           testMinCss must include(".test{font-size:10px")
@@ -46,11 +46,11 @@ class SassCompilerTest extends FunSpec with MustMatchers {
         }
 
         it("should have read one file") {
-          compilationResults.get.filesRead.size must be(1)
+          compilationResults.right.get.filesRead.size must be(1)
         }
 
         it("should have read the correct file") {
-          compilationResults.get.filesRead.head.toString must endWith("well-formed.scss")
+          compilationResults.right.get.filesRead.head.toString must endWith("well-formed.scss")
         }
       }
 
@@ -59,11 +59,11 @@ class SassCompilerTest extends FunSpec with MustMatchers {
         val compilationResults = SassCompiler.compile(input, input.getParent, testDir, compilerSettings)
 
         it("should compile") {
-          compilationResults.isSuccess mustBe true
+          compilationResults.isRight mustBe true
         }
 
         it("should include the contents of both the included and the including file") {
-          val cssMin = Source.fromFile(compilationResults.get.filesWritten.filter(_.toString.endsWith("css")).head.toFile).mkString
+          val cssMin = Source.fromFile(compilationResults.right.get.filesWritten.filter(_.toString.endsWith("css")).head.toFile).mkString
           val testMinCss = cssMin.replaceAll("\\/\\*.*?\\*\\/", "").replaceAll("\\s+", "")
 
           testMinCss must include(".test-import{font-weight:bold")
@@ -72,11 +72,11 @@ class SassCompilerTest extends FunSpec with MustMatchers {
         }
 
         it("should have read two files") {
-          compilationResults.get.filesRead.size must be(2)
+          compilationResults.right.get.filesRead.size must be(2)
         }
 
         it("should have read the included file") {
-          compilationResults.get.filesRead.filter(_.endsWith("_well-formed-import.scss")) must not be None
+          compilationResults.right.get.filesRead.filter(_.endsWith("_well-formed-import.scss")) must not be None
         }
       }
     }
@@ -86,20 +86,20 @@ class SassCompilerTest extends FunSpec with MustMatchers {
       val compilationResult = SassCompiler.compile(input, input.getParent, testDir, compilerSettings)
 
       describe("should fail compilation") {
-        compilationResult.isFailure mustBe true
+        compilationResult.isLeft mustBe true
       }
 
       describe("should throw an exception") {
         it("reporting Invalid CSS") {
           compilationResult match {
-            case Failure(exception) => exception.getMessage must include("Invalid CSS after ")
+            case Left(exception) => exception.getMessage must include("Invalid CSS after ")
             case _ => fail
           }
         }
 
         it("reporting an error on line 2 column 16") {
           compilationResult match {
-            case Failure(exception: LineBasedCompilerException) =>
+            case Left(exception: LineBasedCompilerException) =>
               exception.line mustBe 2
               exception.column mustBe 16
             case _ => fail

@@ -22,12 +22,10 @@ import java.nio.file.{Files, Path}
 import org.irundaia.sass.jna.SassLibrary
 import play.api.libs.json._
 
-import scala.util.{Failure, Success, Try}
-
 object SassCompiler {
   val charset = StandardCharsets.UTF_8
 
-  def compile(sass: Path, sourceDir: Path, targetDir: Path, compilerSettings: CompilerSettings): CompilationResult = {
+  def compile(sass: Path, sourceDir: Path, targetDir: Path, compilerSettings: CompilerSettings): Either[CompilerException, CompilationSuccess] = {
     // Determine the source filename (relative to the source directory)
     val targetSource = sourceDir.relativize(sass)
     def sourceWithExtn(extn: String): Path =
@@ -44,14 +42,14 @@ object SassCompiler {
     val output = doCompile(sass, css, sourceMap, compilerSettings)
 
     // Output the CSS or throw an exception when compilation failed
-    output.map{case results =>
+    output.right.map { case results =>
       outputCss(results, css)
       outputSourceMap(sass, sourceMap, results, compilerSettings)
       determineCompilationDependencies(results, sass, css, sourceMap)
     }
   }
 
-  def doCompile(source: Path, target: Path, map: Path, compilerSettings: CompilerSettings): Try[Output] = {
+  def doCompile(source: Path, target: Path, map: Path, compilerSettings: CompilerSettings): Either[CompilerException, Output] = {
     val context = Context(source)
 
     compilerSettings.applySettings(source, context.options)
@@ -65,9 +63,9 @@ object SassCompiler {
     context.cleanup()
 
     if (compileStatus != 0)
-      Failure(CompilerException(output))
+      Left(CompilerException(output))
     else
-      Success(output)
+      Right(output)
   }
 
   private def outputCss(compilationResult: Output, css: Path) = Files.write(css, compilationResult.css.getBytes(charset))

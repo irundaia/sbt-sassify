@@ -92,19 +92,19 @@ object SbtSassify extends AutoPlugin {
             streams.value.log.info(s"Sass compiling on ${modifiedSources.size} source(s)")
 
           // Compile all modified sources
-          val compilationResults: Map[File, CompilationResult] = modifiedSources
+          val compilationResults: Map[File, Either[CompilerException, CompilationSuccess]] = modifiedSources
             .map(inputFile => inputFile -> SassCompiler.compile(inputFile.toPath, sourceDir.toPath, targetDir.toPath, compilerSettings))
             .toMap
 
           // Collect OpResults
           val opResults: Map[File, OpResult] = compilationResults.mapValues {
-            case Success(result) => OpSuccess(result.filesRead.map(_.toFile), result.filesWritten.map(_.toFile))
-            case Failure(_) => OpFailure
+            case Right(result) => OpSuccess(result.filesRead.map(_.toFile), result.filesWritten.map(_.toFile))
+            case Left(_) => OpFailure
           }
 
           // Report compilation problems
           val problems: Seq[Problem] = compilationResults.collect {
-            case (_, Failure(e: LineBasedCompilerException)) =>
+            case (_, Left(e: LineBasedCompilerException)) =>
               new LineBasedProblem(
                 e.message,
                 Severity.Error,
@@ -113,7 +113,7 @@ object SbtSassify extends AutoPlugin {
                 e.lineContent,
                 e.source
               )
-            case (f, Failure(e)) =>
+            case (f, Left(e)) =>
               new GeneralProblem(e.getMessage, f)
           }.toSeq
           CompileProblems.report((reporter in sassify).value, problems)
@@ -121,7 +121,7 @@ object SbtSassify extends AutoPlugin {
           // Collect the created files
           val createdFiles: Seq[File] = compilationResults
             .values
-            .flatMap(_.toOption)
+            .flatMap(_.right.toOption)
             .map(_.filesWritten)
             .foldLeft(Seq.empty[File]){
               case (acc, addedFiles) => acc ++ addedFiles.map(_.toFile)
