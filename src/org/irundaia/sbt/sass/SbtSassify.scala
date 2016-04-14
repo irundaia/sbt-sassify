@@ -16,8 +16,6 @@
 
 package org.irundaia.sbt.sass
 
-import java.time.{Duration, Instant}
-
 import com.typesafe.sbt.web.Import.WebKeys._
 import com.typesafe.sbt.web.SbtWeb.autoImport._
 import com.typesafe.sbt.web._
@@ -28,7 +26,6 @@ import sbt._
 import xsbti.{Problem, Severity}
 
 import scala.language.implicitConversions
-import scala.util.{Failure, Success, Try}
 
 object SbtSassify extends AutoPlugin {
   override def requires: Plugins = SbtWeb
@@ -86,13 +83,13 @@ object SbtSassify extends AutoPlugin {
 
       val results = incremental.syncIncremental((streams in Assets).value.cacheDirectory / "run", sources) {
         modifiedSources: Seq[File] =>
-          val startInstant = Instant.now
+          val startInstant = System.currentTimeMillis
 
           if (modifiedSources.nonEmpty)
             streams.value.log.info(s"Sass compiling on ${modifiedSources.size} source(s)")
 
           // Compile all modified sources
-          val compilationResults: Map[File, Either[CompilerException, CompilationSuccess]] = modifiedSources
+          val compilationResults: Map[File, Either[CompilationFailure, CompilationSuccess]] = modifiedSources
             .map(inputFile => inputFile -> SassCompiler.compile(inputFile.toPath, sourceDir.toPath, targetDir.toPath, compilerSettings))
             .toMap
 
@@ -104,7 +101,7 @@ object SbtSassify extends AutoPlugin {
 
           // Report compilation problems
           val problems: Seq[Problem] = compilationResults.collect {
-            case (_, Left(e: LineBasedCompilerException)) =>
+            case (_, Left(e: LineBasedCompilationFailure)) =>
               new LineBasedProblem(
                 e.message,
                 Severity.Error,
@@ -127,10 +124,10 @@ object SbtSassify extends AutoPlugin {
               case (acc, addedFiles) => acc ++ addedFiles.map(_.toFile)
             }
 
-          val duration = Duration.between(startInstant, Instant.now).toMillis
+          val endInstant = System.currentTimeMillis
 
           if (createdFiles.nonEmpty)
-            streams.value.log.info(s"Sass compilation done in $duration ms. ${createdFiles.size} resulting css/source map file(s)")
+            streams.value.log.info(s"Sass compilation done in ${endInstant - startInstant} ms. ${createdFiles.size} resulting css/source map file(s)")
 
           (opResults, createdFiles)
       }(fileHasherIncludingOptions)

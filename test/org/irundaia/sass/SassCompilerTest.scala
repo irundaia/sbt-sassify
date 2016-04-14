@@ -99,7 +99,7 @@ class SassCompilerTest extends FunSpec with MustMatchers {
 
         it("reporting an error on line 2 column 16") {
           compilationResult match {
-            case Left(exception: LineBasedCompilerException) =>
+            case Left(exception: LineBasedCompilationFailure) =>
               exception.line mustBe 2
               exception.column mustBe 16
             case _ => fail

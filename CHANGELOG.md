@@ -69,3 +69,7 @@
 
 ## 1.4.4
 - Fix character encoding when outputting CSS on Windows. (#13)
+
+## 1.4.5
+- Small refactorings
+- Removed Java 8 dependency. Now it only requires Java 7 (for NIO).

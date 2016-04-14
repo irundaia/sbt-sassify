@@ -25,7 +25,7 @@ import play.api.libs.json._
 object SassCompiler {
   val charset = StandardCharsets.UTF_8
 
-  def compile(sass: Path, sourceDir: Path, targetDir: Path, compilerSettings: CompilerSettings): Either[CompilerException, CompilationSuccess] = {
+  def compile(sass: Path, sourceDir: Path, targetDir: Path, compilerSettings: CompilerSettings): Either[CompilationFailure, CompilationSuccess] = {
     // Determine the source filename (relative to the source directory)
     val targetSource = sourceDir.relativize(sass)
     def sourceWithExtn(extn: String): Path =
@@ -49,7 +49,7 @@ object SassCompiler {
     }
   }
 
-  def doCompile(source: Path, target: Path, map: Path, compilerSettings: CompilerSettings): Either[CompilerException, Output] = {
+  def doCompile(source: Path, target: Path, map: Path, compilerSettings: CompilerSettings): Either[CompilationFailure, Output] = {
     val context = Context(source)
 
     compilerSettings.applySettings(source, context.options)
@@ -63,7 +63,7 @@ object SassCompiler {
     context.cleanup()
 
     if (compileStatus != 0)
-      Left(CompilerException(output))
+      Left(CompilationFailure(output))
     else
       Right(output)
   }
@@ -87,40 +87,35 @@ object SassCompiler {
     // Extract the file dependencies from the source map.
     Option(compilationResult.sourceMap) match {
       case Some(sourceMapContent) =>
-        CompilationSuccess(extractDependencies(css.getParent, sourceMapContent).filter(Files.exists(_)).toSet, filesWritten)
+        CompilationSuccess(
+          normalizeFiles(css.getParent, Json.parse(sourceMapContent).as[SourceMap].sources).toSet,
+          filesWritten)
       case None =>
         CompilationSuccess(Set(sass.normalize), filesWritten)
     }
   }
 
-  private def extractDependencies(baseDir: Path, originalSourceMap: String): Seq[Path] =
-    normalizeFiles(baseDir, (Json.parse(originalSourceMap) \ "sources")
-      .as[Seq[String]])
-
   private def fixSourceMap(originalSourceMap: String, compilerSettings: CompilerSettings, baseDir: Path): String = {
-    val parsedSourceMap = Json.parse(originalSourceMap).as[JsObject]
+    val parsedSourceMap = Json.parse(originalSourceMap).as[SourceMap]
 
     // Use relative file names to make sure that the browser can find the files when they are moved to the target dir
-    val sources = (parsedSourceMap \ "sources").as[Seq[String]]
     val transformedSources =
-      normalizeFiles(baseDir, sources) // Get absolute paths
+      normalizeFiles(baseDir, parsedSourceMap.sources) // Get absolute paths
         .map(convertToRelativePath(_, compilerSettings.includePaths).toString) // Transform to relative paths relative to the include paths
-        .map(JsString.apply) // Convert to JSON values
 
     // Update the source map with the newly computed sources (contents)
-    val updatedMap = parsedSourceMap ++
-          Json.obj("sources" -> JsArray(transformedSources.toSeq))
+    val updatedMap = parsedSourceMap.copy(sources = transformedSources)
 
-    Json.prettyPrint(updatedMap)
+    Json.prettyPrint(Json.toJson(updatedMap))
   }
 
   private def normalizeFiles(baseDir: Path, fileNames: Iterable[String]): Seq[Path] =
     fileNames
-      .map(f => baseDir.resolve(f).normalize)
+      .map(p => baseDir.resolve(p).normalize)
       .toSeq
 
-  private def convertToRelativePath(file: Path, includePaths: Iterable[Path]): Path = {
-    val normalizedPath = file.normalize
+  private def convertToRelativePath(path: Path, includePaths: Iterable[Path]): Path = {
+    val normalizedPath = path.normalize
     val ancestorDir = includePaths.find(includePath => normalizedPath.startsWith(includePath))
 
     ancestorDir match {

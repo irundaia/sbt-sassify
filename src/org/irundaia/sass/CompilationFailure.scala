@@ -22,24 +22,26 @@ import play.api.libs.json.{JsObject, Json}
 
 import scala.io.Source
 
-sealed trait CompilerException extends RuntimeException
-case class LineBasedCompilerException(message: String, line: Int, column: Int, lineContent: String, source: File)
-  extends CompilerException {
+sealed trait CompilationFailure {
+  def getMessage: String
+}
+case class LineBasedCompilationFailure(message: String, line: Int, column: Int, lineContent: String, source: File)
+  extends CompilationFailure {
   override def getMessage: String =
     s"""Compilation error on line $line of $source:
         |$lineContent
         |${" " * column}^
         |$message""".stripMargin
 }
-case class GenericCompilerException(message: String) extends CompilerException {
+case class GenericCompilationFailure(message: String) extends CompilationFailure {
   override def getMessage: String =
     s"""Compilation error:
        |$message
      """.stripMargin
 }
 
-object CompilerException {
-  def apply(compilationOutput: Output): CompilerException = {
+object CompilationFailure {
+  def apply(compilationOutput: Output): CompilationFailure = {
     if (compilationOutput.errorStatus == 1) applyLineBased(compilationOutput) else applyGeneric(compilationOutput)
   }
 
@@ -52,9 +54,9 @@ object CompilerException {
     val source = new File(compilationOutput.errorFile)
     val lineContent = Source.fromFile(source).getLines().drop(line - 1).next
 
-    new LineBasedCompilerException(message, line, column - 1, lineContent, source)
+    new LineBasedCompilationFailure(message, line, column - 1, lineContent, source)
   }
   private def applyGeneric(compilationOutput: Output) = {
-    new GenericCompilerException(compilationOutput.errorMessage)
+    new GenericCompilationFailure(compilationOutput.errorMessage)
   }
 }

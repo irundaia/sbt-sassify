@@ -14,7 +14,7 @@ The sbt-sassify plugin supports the following operating systems:
 - Windows (32/64 bit)
 - Linux (32/64 bit)
 
-This plugin has been tested against sbt-web and the Play framework versions 1.2.2 and 2.4.3+ respectively.
+This plugin has been tested against sbt-web and the Play framework versions 1.2.2 and 2.4.3+ respectively. Additionally, it requires Java 7.
 
 ## Usage
 
