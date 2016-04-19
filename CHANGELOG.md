@@ -72,4 +72,4 @@
 
 ## 1.4.5
 - Small refactorings
-- Removed Java 8 dependency. Now it only requires Java 7 (for NIO).
+- Upgrade to `libsass` 3.3.5 (#14)
