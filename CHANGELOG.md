@@ -73,3 +73,8 @@
 ## 1.4.5
 - Small refactorings
 - Upgrade to `libsass` 3.3.5 (#14)
+
+## 1.4.6
+- Revert to plain SBT project layout. The root directory was becoming too cluttered.
+- Upgrade to `libsass` 3.3.6 (#15)
+- Fix nested `@extend` (#11)
