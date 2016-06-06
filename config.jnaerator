@@ -1,9 +1,10 @@
 -library sass
--package org.irundaia.sass.org.irundaia.sass.jna
--I $(DIR)/native-src/include/
-$(DIR)/native-src/include/sass/base.h
-$(DIR)/native-src/include/sass/context.h
-$(DIR)/native-src/include/sass/values.h
-$(DIR)/native-src/include/sass/functions.h
+-package org.irundaia.sass.jna
+-I $(DIR)/src/native/include/
+$(DIR)/src/native/include/sass/base.h
+$(DIR)/src/native/include/sass/context.h
+$(DIR)/src/native/include/sass/values.h
+$(DIR)/src/native/include/sass/functions.h
 -runtime JNA
 -preferJavac
+-skipDeprecated

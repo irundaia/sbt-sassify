@@ -1,0 +1,13 @@
+# Should recompile a file when it has changed
+
+> assets
+
+$ copy-file target/web/public/main/stylesheets/basic.css target/web/public/main/stylesheets/basic-old.css
+
+$ copy-file src/main/assets/stylesheets/_basic-modified.scss src/main/assets/stylesheets/basic.scss
+
+$ sleep 1000
+
+> assets
+
+$ newer target/web/public/main/stylesheets/basic.css target/web/public/main/stylesheets/basic-old.css

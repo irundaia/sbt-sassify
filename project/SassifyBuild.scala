@@ -6,20 +6,8 @@ import de.heikoseeberger.sbtheader.license.Apache2_0
 import de.heikoseeberger.sbtheader.HeaderKey._
 import sbt.Keys._
 import sbt._
-import ScriptedPlugin._
 
 object SassifyBuild extends Build {
-
-  val directoryStructureSettings = Seq(
-    scalaSource in Compile := baseDirectory.value / "src",
-    javaSource in Compile := baseDirectory.value / "src",
-    sourceDirectories in Compile := Seq((scalaSource in Compile).value),
-    resourceDirectory in Compile := baseDirectory.value / "resources",
-    scalaSource in Test := baseDirectory.value / "test",
-    javaSource in Test := baseDirectory.value / "test",
-    sourceDirectories in Test := Seq((scalaSource in Test).value),
-    resourceDirectory in Test := baseDirectory.value / "test-resources"
-  )
 
   val compilerSettings = Seq (
     scalaVersion := "2.10.6",
@@ -61,8 +49,7 @@ object SassifyBuild extends Build {
 
   val scriptedSettings = ScriptedPlugin.scriptedSettings ++ Seq(
     ScriptedPlugin.scriptedBufferLog := false,
-    ScriptedPlugin.scriptedLaunchOpts <+= version { "-Dplugin.version=" + _ },
-    sbtTestDirectory := baseDirectory.value / "sbt-test"
+    ScriptedPlugin.scriptedLaunchOpts <+= version { "-Dplugin.version=" + _ }
   )
 
   // File copyright headers
@@ -70,7 +57,6 @@ object SassifyBuild extends Build {
     .in(file("."))
     .enablePlugins(AutomateHeaderPlugin)
     .enablePlugins(GitVersioning)
-    .settings(directoryStructureSettings)
     .settings(compilerSettings)
     .settings(scriptedSettings)
     .settings(bintraySettings)
