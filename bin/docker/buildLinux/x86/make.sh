@@ -2,8 +2,8 @@
 
 cd /sass
 
-rm -r src/main/resources/linux-x86-64
-mkdir -p src/main/resources/linux-x86-64
+rm -r src/main/resources/linux-x86
+mkdir -p src/main/resources/linux-x86
 
 # *** Build libsass
 make -C src/native clean
@@ -13,12 +13,10 @@ git clean -xdf # hard clean
 cd ../..
 
 BUILD="shared" \
-CC=gcc \
-CXX=g++ \
-make -C src/native -j8 || exit 1
+  make -C src/native -j8 || exit 1
 
 # *** Copy to target location
-cp src/native/lib/libsass.so src/main/resources/linux-x86-64/libsass.so || exit 1
+cp src/native/lib/libsass.so src/main/resources/linux-x86/libsass.so || exit 1
 
 # *** Cleanup
 cd /sass/src/native

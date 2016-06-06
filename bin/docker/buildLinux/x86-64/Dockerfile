@@ -1,5 +1,5 @@
 FROM centos:5
-MAINTAINER "Han van Venrooij" <irundaia@gmail.com>
+MAINTAINER "Han van Venrooij" <clerris@gmail.com>
 
 RUN set -x \
     && yum install -y wget
