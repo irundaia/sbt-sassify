@@ -1050,7 +1050,7 @@ public interface SassLibrary extends Library {
 	 * Original signature : <code>char** sass_context_get_included_files(Sass_Context*)</code><br>
 	 * <i>native declaration : src/native/include/sass/context.h:121</i>
 	 */
-	PointerByReference sass_context_get_included_files(SassLibrary.Sass_Context ctx);
+	String[] sass_context_get_included_files(SassLibrary.Sass_Context ctx);
 	/**
 	 * Calculate the size of the stored null terminated array<br>
 	 * Original signature : <code>size_t sass_context_get_included_files_size(Sass_Context*)</code><br>

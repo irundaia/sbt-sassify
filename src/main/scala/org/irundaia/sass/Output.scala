@@ -21,6 +21,7 @@ import org.irundaia.sass.jna.SassLibrary
 case class Output(
    css: String,
    sourceMap: String,
+   readFiles: Array[String],
    errorStatus: Int,
    errorJson: String,
    errorText: String,
@@ -34,6 +35,7 @@ object Output {
     Output(
       instance.sass_context_get_output_string(nativeContext),
       instance.sass_context_get_source_map_string(nativeContext),
+      instance.sass_context_get_included_files(nativeContext),
       instance.sass_context_get_error_status(nativeContext),
       instance.sass_context_get_error_json(nativeContext),
       instance.sass_context_get_error_text(nativeContext),

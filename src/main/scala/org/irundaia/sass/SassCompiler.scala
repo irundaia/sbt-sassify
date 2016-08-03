@@ -88,7 +88,7 @@ object SassCompiler {
     Option(compilationResult.sourceMap) match {
       case Some(sourceMapContent) =>
         CompilationSuccess(
-          normalizeFiles(css.getParent, Json.parse(sourceMapContent).as[SourceMap].sources).toSet,
+          normalizeFiles(css.getParent, compilationResult.readFiles).toSet,
           filesWritten)
       case None =>
         CompilationSuccess(Set(sass.normalize), filesWritten)
