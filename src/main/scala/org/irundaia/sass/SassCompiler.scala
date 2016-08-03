@@ -39,14 +39,19 @@ object SassCompiler {
     Files.createDirectories(css.getParent)
 
     // Compile the sources, and get the dependencies
-    val output = doCompile(sass, css, sourceMap, compilerSettings)
+    val eitherErrorOrOutput = doCompile(sass, css, sourceMap, compilerSettings)
 
-    // Output the CSS or throw an exception when compilation failed
-    output.right.map { case results =>
-      outputCss(results, css)
-      outputSourceMap(sass, sourceMap, results, compilerSettings)
-      determineCompilationDependencies(results, sass, css, sourceMap)
-    }
+    // Output the CSS and source map files
+    eitherErrorOrOutput.right.foreach(output => {
+        outputCss(output, css)
+        outputSourceMap(sass, sourceMap, output, compilerSettings)
+      }
+    )
+
+    // Return either the compilation error or the files read/written by the compiler
+    eitherErrorOrOutput.right.map(output =>
+      determineCompilationDependencies(output, sass, css, sourceMap)
+    )
   }
 
   def doCompile(source: Path, target: Path, map: Path, compilerSettings: CompilerSettings): Either[CompilationFailure, Output] = {
