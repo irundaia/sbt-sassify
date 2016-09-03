@@ -15,14 +15,10 @@
  */
 
 package org.irundaia.sass.jna;
-import com.ochafik.lang.jnaerator.runtime.NativeSize;
-import com.sun.jna.Callback;
-import com.sun.jna.Library;
-import com.sun.jna.Native;
-import com.sun.jna.NativeLibrary;
-import com.sun.jna.Pointer;
-import com.sun.jna.PointerType;
+
+import com.sun.jna.*;
 import com.sun.jna.ptr.PointerByReference;
+
 import java.nio.ByteBuffer;
 /**
  * JNA Wrapper for library <b>sass</b><br>
@@ -193,7 +189,7 @@ public interface SassLibrary extends Library {
 	 * Original signature : <code>void* sass_alloc_memory(size_t)</code><br>
 	 * <i>native declaration : src/native/include/sass/base.h:54</i>
 	 */
-	Pointer sass_alloc_memory(NativeSize size);
+	Pointer sass_alloc_memory(SizeT size);
 	/**
 	 * to allocate a buffer from existing string<br>
 	 * Original signature : <code>char* sass_copy_c_string(const char*)</code><br>
@@ -270,12 +266,12 @@ public interface SassLibrary extends Library {
 	 * Original signature : <code>Sass_Value* sass_make_list(size_t, Sass_Separator)</code><br>
 	 * <i>native declaration : src/native/include/sass/values.h:47</i>
 	 */
-	SassLibrary.Sass_Value sass_make_list(NativeSize len, int sep);
+	SassLibrary.Sass_Value sass_make_list(SizeT len, int sep);
 	/**
 	 * Original signature : <code>Sass_Value* sass_make_map(size_t)</code><br>
 	 * <i>native declaration : src/native/include/sass/values.h:48</i>
 	 */
-	SassLibrary.Sass_Value sass_make_map(NativeSize len);
+	SassLibrary.Sass_Value sass_make_map(SizeT len);
 	/**
 	 * Original signature : <code>Sass_Value* sass_make_error(const char*)</code><br>
 	 * <i>native declaration : src/native/include/sass/values.h:49</i>
@@ -461,7 +457,7 @@ public interface SassLibrary extends Library {
 	 * Original signature : <code>size_t sass_list_get_length(Sass_Value*)</code><br>
 	 * <i>native declaration : src/native/include/sass/values.h:109</i>
 	 */
-	NativeSize sass_list_get_length(SassLibrary.Sass_Value v);
+	SizeT sass_list_get_length(SassLibrary.Sass_Value v);
 	/**
 	 * Getters and setters for Sass_List<br>
 	 * Original signature : <code>Sass_Separator sass_list_get_separator(Sass_Value*)</code><br>
@@ -478,39 +474,39 @@ public interface SassLibrary extends Library {
 	 * Original signature : <code>Sass_Value* sass_list_get_value(Sass_Value*, size_t)</code><br>
 	 * <i>native declaration : src/native/include/sass/values.h:114</i>
 	 */
-	SassLibrary.Sass_Value sass_list_get_value(SassLibrary.Sass_Value v, NativeSize i);
+	SassLibrary.Sass_Value sass_list_get_value(SassLibrary.Sass_Value v, SizeT i);
 	/**
 	 * Original signature : <code>void sass_list_set_value(Sass_Value*, size_t, Sass_Value*)</code><br>
 	 * <i>native declaration : src/native/include/sass/values.h:115</i>
 	 */
-	void sass_list_set_value(SassLibrary.Sass_Value v, NativeSize i, SassLibrary.Sass_Value value);
+	void sass_list_set_value(SassLibrary.Sass_Value v, SizeT i, SassLibrary.Sass_Value value);
 	/**
 	 * Getter for the number of items in map<br>
 	 * Original signature : <code>size_t sass_map_get_length(Sass_Value*)</code><br>
 	 * <i>native declaration : src/native/include/sass/values.h:118</i>
 	 */
-	NativeSize sass_map_get_length(SassLibrary.Sass_Value v);
+	SizeT sass_map_get_length(SassLibrary.Sass_Value v);
 	/**
 	 * Getters and setters for Sass_Map keys and values<br>
 	 * Original signature : <code>Sass_Value* sass_map_get_key(Sass_Value*, size_t)</code><br>
 	 * <i>native declaration : src/native/include/sass/values.h:120</i>
 	 */
-	SassLibrary.Sass_Value sass_map_get_key(SassLibrary.Sass_Value v, NativeSize i);
+	SassLibrary.Sass_Value sass_map_get_key(SassLibrary.Sass_Value v, SizeT i);
 	/**
 	 * Original signature : <code>void sass_map_set_key(Sass_Value*, size_t, Sass_Value*)</code><br>
 	 * <i>native declaration : src/native/include/sass/values.h:121</i>
 	 */
-	void sass_map_set_key(SassLibrary.Sass_Value v, NativeSize i, SassLibrary.Sass_Value Sass_ValuePtr1);
+	void sass_map_set_key(SassLibrary.Sass_Value v, SizeT i, SassLibrary.Sass_Value Sass_ValuePtr1);
 	/**
 	 * Original signature : <code>Sass_Value* sass_map_get_value(Sass_Value*, size_t)</code><br>
 	 * <i>native declaration : src/native/include/sass/values.h:122</i>
 	 */
-	SassLibrary.Sass_Value sass_map_get_value(SassLibrary.Sass_Value v, NativeSize i);
+	SassLibrary.Sass_Value sass_map_get_value(SassLibrary.Sass_Value v, SizeT i);
 	/**
 	 * Original signature : <code>void sass_map_set_value(Sass_Value*, size_t, Sass_Value*)</code><br>
 	 * <i>native declaration : src/native/include/sass/values.h:123</i>
 	 */
-	void sass_map_set_value(SassLibrary.Sass_Value v, NativeSize i, SassLibrary.Sass_Value Sass_ValuePtr1);
+	void sass_map_set_value(SassLibrary.Sass_Value v, SizeT i, SassLibrary.Sass_Value Sass_ValuePtr1);
 	/**
 	 * Getters and setters for Sass_Error<br>
 	 * Original signature : <code>char* sass_error_get_message(Sass_Value*)</code><br>
@@ -538,17 +534,17 @@ public interface SassLibrary extends Library {
 	 * Original signature : <code>Sass_Importer_List sass_make_importer_list(size_t)</code><br>
 	 * <i>native declaration : src/native/include/sass/functions.h:33</i>
 	 */
-	SassLibrary.Sass_Importer_List sass_make_importer_list(NativeSize length);
+	SassLibrary.Sass_Importer_List sass_make_importer_list(SizeT length);
 	/**
 	 * Original signature : <code>Sass_Importer_Entry sass_importer_get_list_entry(Sass_Importer_List, size_t)</code><br>
 	 * <i>native declaration : src/native/include/sass/functions.h:34</i>
 	 */
-	SassLibrary.Sass_Importer_Entry sass_importer_get_list_entry(SassLibrary.Sass_Importer_List list, NativeSize idx);
+	SassLibrary.Sass_Importer_Entry sass_importer_get_list_entry(SassLibrary.Sass_Importer_List list, SizeT idx);
 	/**
 	 * Original signature : <code>void sass_importer_set_list_entry(Sass_Importer_List, size_t, Sass_Importer_Entry)</code><br>
 	 * <i>native declaration : src/native/include/sass/functions.h:35</i>
 	 */
-	void sass_importer_set_list_entry(SassLibrary.Sass_Importer_List list, NativeSize idx, SassLibrary.Sass_Importer_Entry entry);
+	void sass_importer_set_list_entry(SassLibrary.Sass_Importer_List list, SizeT idx, SassLibrary.Sass_Importer_Entry entry);
 	/**
 	 * The pointer is mostly used to store the callback into the actual binding<br>
 	 * Original signature : <code>Sass_Importer_Entry sass_make_importer(Sass_Importer_Fn, double, void*)</code><br>
@@ -582,7 +578,7 @@ public interface SassLibrary extends Library {
 	 * Original signature : <code>Sass_Import_List sass_make_import_list(size_t)</code><br>
 	 * <i>native declaration : src/native/include/sass/functions.h:51</i>
 	 */
-	SassLibrary.Sass_Import_List sass_make_import_list(NativeSize length);
+	SassLibrary.Sass_Import_List sass_make_import_list(SizeT length);
 	/**
 	 * Creator for a single import entry returned by the custom importer inside the list<br>
 	 * Original signature : <code>Sass_Import_Entry sass_make_import_entry(const char*, char*, char*)</code><br>
@@ -599,18 +595,18 @@ public interface SassLibrary extends Library {
 	 * Original signature : <code>Sass_Import_Entry sass_import_set_error(Sass_Import_Entry, const char*, size_t, size_t)</code><br>
 	 * <i>native declaration : src/native/include/sass/functions.h:56</i>
 	 */
-	SassLibrary.Sass_Import_Entry sass_import_set_error(SassLibrary.Sass_Import_Entry import$, String message, NativeSize line, NativeSize col);
+	SassLibrary.Sass_Import_Entry sass_import_set_error(SassLibrary.Sass_Import_Entry import$, String message, SizeT line, SizeT col);
 	/**
 	 * Since we are dealing with pointers they should have a guaranteed and fixed size<br>
 	 * Original signature : <code>void sass_import_set_list_entry(Sass_Import_List, size_t, Sass_Import_Entry)</code><br>
 	 * <i>native declaration : src/native/include/sass/functions.h:60</i>
 	 */
-	void sass_import_set_list_entry(SassLibrary.Sass_Import_List list, NativeSize idx, SassLibrary.Sass_Import_Entry entry);
+	void sass_import_set_list_entry(SassLibrary.Sass_Import_List list, SizeT idx, SassLibrary.Sass_Import_Entry entry);
 	/**
 	 * Original signature : <code>Sass_Import_Entry sass_import_get_list_entry(Sass_Import_List, size_t)</code><br>
 	 * <i>native declaration : src/native/include/sass/functions.h:61</i>
 	 */
-	SassLibrary.Sass_Import_Entry sass_import_get_list_entry(SassLibrary.Sass_Import_List list, NativeSize idx);
+	SassLibrary.Sass_Import_Entry sass_import_get_list_entry(SassLibrary.Sass_Import_List list, SizeT idx);
 	/**
 	 * Getters for import entry<br>
 	 * Original signature : <code>char* sass_import_get_imp_path(Sass_Import_Entry)</code><br>
@@ -648,12 +644,12 @@ public interface SassLibrary extends Library {
 	 * Original signature : <code>size_t sass_import_get_error_line(Sass_Import_Entry)</code><br>
 	 * <i>native declaration : src/native/include/sass/functions.h:73</i>
 	 */
-	NativeSize sass_import_get_error_line(SassLibrary.Sass_Import_Entry Sass_Import_Entry1);
+	SizeT sass_import_get_error_line(SassLibrary.Sass_Import_Entry Sass_Import_Entry1);
 	/**
 	 * Original signature : <code>size_t sass_import_get_error_column(Sass_Import_Entry)</code><br>
 	 * <i>native declaration : src/native/include/sass/functions.h:74</i>
 	 */
-	NativeSize sass_import_get_error_column(SassLibrary.Sass_Import_Entry Sass_Import_Entry1);
+	SizeT sass_import_get_error_column(SassLibrary.Sass_Import_Entry Sass_Import_Entry1);
 	/**
 	 * Original signature : <code>char* sass_import_get_error_message(Sass_Import_Entry)</code><br>
 	 * <i>native declaration : src/native/include/sass/functions.h:75</i>
@@ -676,7 +672,7 @@ public interface SassLibrary extends Library {
 	 * Original signature : <code>Sass_Function_List sass_make_function_list(size_t)</code><br>
 	 * <i>native declaration : src/native/include/sass/functions.h:85</i>
 	 */
-	SassLibrary.Sass_Function_List sass_make_function_list(NativeSize length);
+	SassLibrary.Sass_Function_List sass_make_function_list(SizeT length);
 	/**
 	 * Original signature : <code>Sass_Function_Entry sass_make_function(const char*, Sass_Function_Fn, void*)</code><br>
 	 * <i>native declaration : src/native/include/sass/functions.h:86</i>
@@ -687,12 +683,12 @@ public interface SassLibrary extends Library {
 	 * Original signature : <code>Sass_Function_Entry sass_function_get_list_entry(Sass_Function_List, size_t)</code><br>
 	 * <i>native declaration : src/native/include/sass/functions.h:89</i>
 	 */
-	SassLibrary.Sass_Function_Entry sass_function_get_list_entry(SassLibrary.Sass_Function_List list, NativeSize pos);
+	SassLibrary.Sass_Function_Entry sass_function_get_list_entry(SassLibrary.Sass_Function_List list, SizeT pos);
 	/**
 	 * Original signature : <code>void sass_function_set_list_entry(Sass_Function_List, size_t, Sass_Function_Entry)</code><br>
 	 * <i>native declaration : src/native/include/sass/functions.h:90</i>
 	 */
-	void sass_function_set_list_entry(SassLibrary.Sass_Function_List list, NativeSize pos, SassLibrary.Sass_Function_Entry cb);
+	void sass_function_set_list_entry(SassLibrary.Sass_Function_List list, SizeT pos, SassLibrary.Sass_Function_Entry cb);
 	/**
 	 * Getters for custom function descriptors<br>
 	 * Original signature : <code>char* sass_function_get_signature(Sass_Function_Entry)</code><br>
@@ -1035,12 +1031,12 @@ public interface SassLibrary extends Library {
 	 * Original signature : <code>size_t sass_context_get_error_line(Sass_Context*)</code><br>
 	 * <i>native declaration : src/native/include/sass/context.h:118</i>
 	 */
-	NativeSize sass_context_get_error_line(SassLibrary.Sass_Context ctx);
+	SizeT sass_context_get_error_line(SassLibrary.Sass_Context ctx);
 	/**
 	 * Original signature : <code>size_t sass_context_get_error_column(Sass_Context*)</code><br>
 	 * <i>native declaration : src/native/include/sass/context.h:119</i>
 	 */
-	NativeSize sass_context_get_error_column(SassLibrary.Sass_Context ctx);
+	SizeT sass_context_get_error_column(SassLibrary.Sass_Context ctx);
 	/**
 	 * Original signature : <code>char* sass_context_get_source_map_string(Sass_Context*)</code><br>
 	 * <i>native declaration : src/native/include/sass/context.h:120</i>
@@ -1056,7 +1052,7 @@ public interface SassLibrary extends Library {
 	 * Original signature : <code>size_t sass_context_get_included_files_size(Sass_Context*)</code><br>
 	 * <i>native declaration : src/native/include/sass/context.h:124</i>
 	 */
-	NativeSize sass_context_get_included_files_size(SassLibrary.Sass_Context ctx);
+	SizeT sass_context_get_included_files_size(SassLibrary.Sass_Context ctx);
 	/**
 	 * Take ownership of memory (value on context is set to 0)<br>
 	 * Original signature : <code>char* sass_context_take_error_json(Sass_Context*)</code><br>
@@ -1113,7 +1109,7 @@ public interface SassLibrary extends Library {
 	 * Original signature : <code>size_t sass_compiler_get_import_stack_size(Sass_Compiler*)</code><br>
 	 * <i>native declaration : src/native/include/sass/context.h:139</i>
 	 */
-	NativeSize sass_compiler_get_import_stack_size(SassLibrary.Sass_Compiler compiler);
+	SizeT sass_compiler_get_import_stack_size(SassLibrary.Sass_Compiler compiler);
 	/**
 	 * Original signature : <code>Sass_Import_Entry sass_compiler_get_last_import(Sass_Compiler*)</code><br>
 	 * <i>native declaration : src/native/include/sass/context.h:140</i>
@@ -1123,7 +1119,7 @@ public interface SassLibrary extends Library {
 	 * Original signature : <code>Sass_Import_Entry sass_compiler_get_import_entry(Sass_Compiler*, size_t)</code><br>
 	 * <i>native declaration : src/native/include/sass/context.h:141</i>
 	 */
-	SassLibrary.Sass_Import_Entry sass_compiler_get_import_entry(SassLibrary.Sass_Compiler compiler, NativeSize idx);
+	SassLibrary.Sass_Import_Entry sass_compiler_get_import_entry(SassLibrary.Sass_Compiler compiler, SizeT idx);
 	/**
 	 * Push function for paths (no manipulation support for now)<br>
 	 * Original signature : <code>void sass_option_push_plugin_path(Sass_Options*, const char*)</code><br>
