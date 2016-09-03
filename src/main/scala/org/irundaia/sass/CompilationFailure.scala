@@ -18,8 +18,6 @@ package org.irundaia.sass
 
 import java.io.File
 
-import play.api.libs.json.{JsObject, Json}
-
 import scala.io.Source
 
 sealed trait CompilationFailure {
@@ -46,17 +44,15 @@ object CompilationFailure {
   }
 
   private def applyLineBased(compilationOutput: Output) = {
-    val errorJson = Json.parse(compilationOutput.errorJson).as[JsObject]
-
     val message: String = compilationOutput.errorMessage
-    val line = (errorJson \ "line").as[Int]
-    val column = (errorJson \ "column").as[Int]
     val source = new File(compilationOutput.errorFile)
+    val line = compilationOutput.errorLine
+    val column = compilationOutput.errorColumn
     val lineContent = Source.fromFile(source).getLines().drop(line - 1).next
 
-    new LineBasedCompilationFailure(message, line, column - 1, lineContent, source)
+    LineBasedCompilationFailure(message, line, column - 1, lineContent, source)
   }
   private def applyGeneric(compilationOutput: Output) = {
-    new GenericCompilationFailure(compilationOutput.errorMessage)
+    GenericCompilationFailure(compilationOutput.errorMessage)
   }
 }

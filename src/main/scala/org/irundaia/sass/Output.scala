@@ -23,10 +23,11 @@ case class Output(
    sourceMap: String,
    readFiles: Array[String],
    errorStatus: Int,
-   errorJson: String,
    errorText: String,
    errorMessage: String,
-   errorFile: String)
+   errorFile: String,
+   errorLine: Int,
+   errorColumn: Int)
 
 object Output {
   def apply(context: Context): Output = {
@@ -37,10 +38,11 @@ object Output {
       instance.sass_context_get_source_map_string(nativeContext),
       instance.sass_context_get_included_files(nativeContext),
       instance.sass_context_get_error_status(nativeContext),
-      instance.sass_context_get_error_json(nativeContext),
       instance.sass_context_get_error_text(nativeContext),
       instance.sass_context_get_error_message(nativeContext),
-      instance.sass_context_get_error_file(nativeContext)
+      instance.sass_context_get_error_file(nativeContext),
+      instance.sass_context_get_error_line(nativeContext).intValue(),
+      instance.sass_context_get_error_column(nativeContext).intValue()
     )
   }
 }
