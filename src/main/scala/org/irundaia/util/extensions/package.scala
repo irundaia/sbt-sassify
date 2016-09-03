@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package org.irundaia.sass
+package org.irundaia.util
 
-import play.api.libs.json.Json
+import java.nio.file.Path
 
-case class SourceMap(version: Int, sourceRoot: Option[String], file: String, sources: Seq[String], mappings: String, names: Seq[String])
-
-object SourceMap {
-  implicit val sourceMapFormat = Json.format[SourceMap]
+package object extensions {
+  implicit class RichPath (p: Path) {
+    def withExtension(extension: String): Path = p.resolveSibling(p.toString.replaceAll("""(.*)\.\w+""", s"$$1.$extension"))
+  }
 }
