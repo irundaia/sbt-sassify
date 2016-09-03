@@ -89,15 +89,9 @@ object SassCompiler {
     else
       Set(css)
 
-    // Extract the file dependencies from the source map.
-    Option(compilationResult.sourceMap) match {
-      case Some(sourceMapContent) =>
-        CompilationSuccess(
-          normalizeFiles(css.getParent, compilationResult.readFiles).toSet,
-          filesWritten)
-      case None =>
-        CompilationSuccess(Set(sass.normalize), filesWritten)
-    }
+    val filesRead = compilationResult.readFiles.map(Paths.get(_)).toSet
+
+    CompilationSuccess(filesRead, filesWritten)
   }
 
   private def fixSourceMap(originalSourceMap: String, compilerSettings: CompilerSettings, baseDir: Path): String = {
