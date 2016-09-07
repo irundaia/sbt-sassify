@@ -18,31 +18,41 @@ package org.irundaia.sass
 
 import org.irundaia.sass.jna.SassLibrary
 
-case class Output(
-   css: String,
-   sourceMap: String,
-   readFiles: Array[String],
-   errorStatus: Int,
-   errorText: String,
-   errorMessage: String,
-   errorFile: String,
-   errorLine: Int,
-   errorColumn: Int)
+sealed trait Output
+
+case class SassError(
+    status: Int,
+    text: String,
+    message: String,
+    file: String,
+    line: Int,
+    column: Int) extends Output
+
+case class SassOutput(
+    css: String,
+    sourceMap: String,
+    readFiles: Array[String]) extends Output
 
 object Output {
   def apply(context: Context): Output = {
     val instance = SassLibrary.INSTANCE
     val nativeContext = instance.sass_file_context_get_context(context.nativeContext)
-    Output(
-      instance.sass_context_get_output_string(nativeContext),
-      instance.sass_context_get_source_map_string(nativeContext),
-      instance.sass_context_get_included_files(nativeContext),
-      instance.sass_context_get_error_status(nativeContext),
-      instance.sass_context_get_error_text(nativeContext),
-      instance.sass_context_get_error_message(nativeContext),
-      instance.sass_context_get_error_file(nativeContext),
-      instance.sass_context_get_error_line(nativeContext).intValue(),
-      instance.sass_context_get_error_column(nativeContext).intValue()
-    )
+
+    if (instance.sass_context_get_error_status(nativeContext) == 0) {
+      SassOutput(
+        instance.sass_context_get_output_string(nativeContext),
+        instance.sass_context_get_source_map_string(nativeContext),
+        instance.sass_context_get_included_files(nativeContext)
+      )
+    } else {
+      SassError(
+        instance.sass_context_get_error_status(nativeContext),
+        instance.sass_context_get_error_text(nativeContext),
+        instance.sass_context_get_error_message(nativeContext),
+        instance.sass_context_get_error_file(nativeContext),
+        instance.sass_context_get_error_line(nativeContext).intValue(),
+        instance.sass_context_get_error_column(nativeContext).intValue()
+      )
+    }
   }
 }

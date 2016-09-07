@@ -24,7 +24,7 @@ import java.nio.file.Paths
 
 import scala.language.implicitConversions
 
-case class Options(nativeOptions: SassLibrary.Sass_Options = SassLibrary.INSTANCE.sass_make_options()) {
+case class Options(nativeOptions: SassLibrary.Sass_Options) {
   private implicit def boolToByte(b: Boolean): Byte = if (b) 1.toByte else 0.toByte
   private implicit def byteToBool(b: Byte): Boolean = b == 1
 
@@ -80,14 +80,15 @@ case class Options(nativeOptions: SassLibrary.Sass_Options = SassLibrary.INSTANC
   def includePaths_=(paths: Iterable[Path]): Unit = includePaths_=(paths.map(_.toFile.getAbsolutePath).mkString(File.pathSeparator))
   def includePaths_+=(path: String): Unit = includePaths_+=(Paths.get(path))
   def includePaths_+=(path: Path): Unit = includePaths_++=(path)
-  def includePaths_++=(paths: Path*): Unit = includePaths_=(includePaths ++ paths)
+  def includePaths_++=(paths: Path*): Unit = paths.map(_.toString).foreach(SassLibrary.INSTANCE.sass_option_push_include_path(nativeOptions, _))
 
   def sourceMapRoot: String = SassLibrary.INSTANCE.sass_option_get_source_map_root(this.nativeOptions)
   def sourceMapRoot_=(path: Path): Unit = sourceMapRoot_=(path.toFile.getAbsolutePath)
   def sourceMapRoot_=(path: String): Unit = SassLibrary.INSTANCE.sass_option_set_source_map_root(this.nativeOptions, path)
+
+  def indent_=(indent: Int):Unit = SassLibrary.INSTANCE.sass_option_set_indent(nativeOptions, " " * indent)
 }
 
 object Options {
   def apply(context: Context): Options = new Options(SassLibrary.INSTANCE.sass_file_context_get_options(context.nativeContext))
-  def apply(): Options = new Options(SassLibrary.INSTANCE.sass_make_options())
 }

@@ -47,12 +47,13 @@ object SassCompiler {
     )
 
     // Return either the compilation error or the files read/written by the compiler
-    eitherErrorOrOutput.right.map(output =>
-      determineCompilationDependencies(output, sass, css, sourceMap)
-    )
+    eitherErrorOrOutput
+        .fold(
+          error => Left(CompilationFailure(error)),
+          output => Right(determineCompilationDependencies(output, sass, css, sourceMap)))
   }
 
-  def doCompile(source: Path, compilerSettings: CompilerSettings): Either[CompilationFailure, Output] = {
+  def doCompile(source: Path, compilerSettings: CompilerSettings): Either[SassError, SassOutput] = {
     val context = Context(source)
 
     compilerSettings.applySettings(source, context.options)
@@ -60,27 +61,28 @@ object SassCompiler {
     context.options.outputPath = source.withExtension("css")
     context.options.sourceMapPath = source.withExtension("css.map")
 
-    val compileStatus = SassLibrary.INSTANCE.sass_compile_file_context(context.nativeContext)
-    val output = Output(context)
+    SassLibrary.INSTANCE.sass_compile_file_context(context.nativeContext)
+
+    val result = Output(context) match {
+      case e: SassError => Left(e)
+      case o: SassOutput => Right(o)
+    }
 
     context.cleanup()
 
-    if (compileStatus != 0)
-      Left(CompilationFailure(output))
-    else
-      Right(output)
+    result
   }
 
-  private def outputCss(compilationResult: Output, css: Path) = Files.write(css, compilationResult.css.getBytes(charset))
+  private def outputCss(compilationResult: SassOutput, css: Path) = Files.write(css, compilationResult.css.getBytes(charset))
 
-  private def outputSourceMap(source: Path, sourceMap: Path, output: Output, compilerSettings: CompilerSettings) =
+  private def outputSourceMap(source: Path, sourceMap: Path, output: SassOutput, compilerSettings: CompilerSettings) =
     Option(output.sourceMap) match {
       case Some(sourceMapContent) if compilerSettings.generateSourceMaps =>
         Files.write(sourceMap, sourceMapContent.getBytes(charset))
       case _ => // Do not output any source map
     }
 
-  def determineCompilationDependencies(compilationResult: Output, sass: Path, css: Path, sourceMap: Path): CompilationSuccess = {
+  def determineCompilationDependencies(compilationResult: SassOutput, sass: Path, css: Path, sourceMap: Path): CompilationSuccess = {
     val filesWritten = if (Files.exists(sourceMap))
       Set(css, sourceMap)
     else

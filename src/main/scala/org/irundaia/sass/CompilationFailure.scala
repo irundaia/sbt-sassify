@@ -39,20 +39,20 @@ case class GenericCompilationFailure(message: String) extends CompilationFailure
 }
 
 object CompilationFailure {
-  def apply(compilationOutput: Output): CompilationFailure = {
-    if (compilationOutput.errorStatus == 1) applyLineBased(compilationOutput) else applyGeneric(compilationOutput)
+  def apply(error: SassError): CompilationFailure = {
+    if (error.status == 1) applyLineBased(error) else applyGeneric(error)
   }
 
-  private def applyLineBased(compilationOutput: Output) = {
-    val message: String = compilationOutput.errorMessage
-    val source = new File(compilationOutput.errorFile)
-    val line = compilationOutput.errorLine
-    val column = compilationOutput.errorColumn
-    val lineContent = Source.fromFile(source).getLines().drop(line - 1).next
+  private def applyLineBased(error: SassError) = {
+    val message: String = error.message
+    val source = new File(error.file)
+    val line = error.line
+    val column = error.column
+    val lineContent = Source.fromFile(error.file).getLines().drop(line - 1).next
 
     LineBasedCompilationFailure(message, line, column - 1, lineContent, source)
   }
-  private def applyGeneric(compilationOutput: Output) = {
-    GenericCompilationFailure(compilationOutput.errorMessage)
+  private def applyGeneric(error: SassError) = {
+    GenericCompilationFailure(error.message)
   }
 }
