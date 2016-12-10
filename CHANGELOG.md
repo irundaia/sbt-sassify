@@ -78,3 +78,9 @@
 - Revert to plain SBT project layout. The root directory was becoming too cluttered.
 - Upgrade to `libsass` 3.3.6 (#15)
 - Fix nested `@extend` (#11)
+
+## 1.4.7
+- Upgrade to `libsass` to 3.4.0
+- Upgrade `scalatest` to 3.0.1
+- Make sure errors are reported on the correct line/col combo
+- Remove dependency on `play-json`
