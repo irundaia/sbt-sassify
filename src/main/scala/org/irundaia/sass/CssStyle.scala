@@ -18,7 +18,6 @@ package org.irundaia.sass
 
 import org.irundaia.sass.jna.SassLibrary
 
-
 sealed trait CssStyle {
   def intValue: Int
 }

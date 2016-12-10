@@ -16,9 +16,9 @@
 
 package org.irundaia.sass
 
-import org.irundaia.sass.jna.SassLibrary
-
 import java.nio.file.Path
+
+import org.irundaia.sass.jna.SassLibrary
 
 case class Context(nativeContext: SassLibrary.Sass_File_Context) {
 
