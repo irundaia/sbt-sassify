@@ -84,3 +84,6 @@
 - Upgrade `scalatest` to 3.0.1
 - Make sure errors are reported on the correct line/col combo
 - Remove dependency on `play-json`
+
+## 1.4.8
+- Upgrade to `libsass` 3.4.2
