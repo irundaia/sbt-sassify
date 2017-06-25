@@ -31,7 +31,7 @@ object SassifyBuild extends Build {
     bintrayReleaseOnPublish in ThisBuild := false,
     publishMavenStyle := false,
     licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html")),
-    publish <<= publish dependsOn (test in Test)
+    publish := publish dependsOn (test in Test)
   )
 
   val copyrightSettings =
@@ -44,12 +44,12 @@ object SassifyBuild extends Build {
   val scalaStyleSettings = Seq(
     testScalastyle := org.scalastyle.sbt.ScalastylePlugin.scalastyle.in(Compile).toTask("").value,
     org.scalastyle.sbt.ScalastylePlugin.scalastyleFailOnError := true,
-    test <<= test in Test dependsOn testScalastyle
+    test := test in Test dependsOn testScalastyle
   )
 
   val scriptedSettings = ScriptedPlugin.scriptedSettings ++ Seq(
     ScriptedPlugin.scriptedBufferLog := false,
-    ScriptedPlugin.scriptedLaunchOpts <+= version { "-Dplugin.version=" + _ }
+    ScriptedPlugin.scriptedLaunchOpts += "-Dplugin.version=" + version.value
   )
 
   // File copyright headers
