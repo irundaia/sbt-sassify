@@ -3,6 +3,7 @@ import com.typesafe.sbt.SbtGit.git
 import de.heikoseeberger.sbtheader.AutomateHeaderPlugin
 import de.heikoseeberger.sbtheader.license.Apache2_0
 import de.heikoseeberger.sbtheader.HeaderKey._
+import java.time.LocalDate
 
 lazy val sbtSassify = project
   .in(file("."))
@@ -50,8 +51,8 @@ licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html
 publish := publish dependsOn (test in Test)
 
 headers := Map(
-  "scala" -> Apache2_0("2016", "Han van Venrooij"),
-  "java" -> Apache2_0("2016", "Han van Venrooij")
+  "scala" -> Apache2_0(LocalDate.now().getYear.toString, "Han van Venrooij"),
+  "java" -> Apache2_0(LocalDate.now.getYear.toString, "Han van Venrooij")
 )
 
 // Scalastyle settings
