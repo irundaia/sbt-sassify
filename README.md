@@ -99,7 +99,7 @@ Some options can be passed to the Sass compiler. For an overview, see below:
 | generateSourceMaps | Whether or not source files are generated.                           | `true`/`false`                 | `true`        |
 | embedSources       | Whether or not the sources should be embedded in the source map file.| `true`/`false`                 | `true`        |
 | syntaxDetection    | How to determine whether the sass/scss syntax is used.               | `Auto`/`ForceScss`/`ForceSass` | `Auto`        |
-| assetsRootURL      | The base URL used to locate the assets.                              | Any `String`                   | `/assets`     |
+| assetRootURL      | The base URL used to locate the assets.                              | Any `String`                   | `/assets`     |
 
 Changing the settings can be done by including the following settings in your build.sbt file:
 
@@ -122,6 +122,8 @@ sbt-sassify uses [semantic versioning](http://semver.org). Given a version numbe
 
 ## Known limitations
 
-1. Only one Sass syntax style can be used at the same time. So when compiling a .scss file, one cannot include a .sass file. (Well, you can, but it won't compile.)
+1. Issues have been known to occur when a different version of libsass has been installed on your system. A workaround would be to make sure that the same version of libsass is installed.
 
-2. Due to a lack of testing, this plugin might not work on all 32-bit linux distributions.
+2. Only one Sass syntax style can be used at the same time. So when compiling a .scss file, one cannot include a .sass file. (Well, you can, but it won't compile.)
+
+3. Due to a lack of testing, this plugin might not work on all 32-bit linux distributions.
