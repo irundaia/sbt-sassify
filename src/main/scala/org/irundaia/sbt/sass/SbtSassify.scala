@@ -62,7 +62,7 @@ object SbtSassify extends AutoPlugin {
 
     managedResourceDirectories += (resourceManaged in sassify in Assets).value,
     resourceManaged in sassify in Assets := webTarget.value / "sass" / "main",
-    resourceGenerators in Assets <+= sassify in Assets,
+    resourceGenerators in Assets += sassify in Assets,
 
     sassify in Assets := Def.task {
       val sourceDir = (sourceDirectory in Assets).value
