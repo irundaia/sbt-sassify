@@ -67,9 +67,17 @@ case class Options(nativeOptions: SassLibrary.Sass_Options) {
   def sourceMapPath_=(file: Path): Unit = sourceMapPath_=(file.toFile.getAbsolutePath)
   def sourceMapPath_=(file: String): Unit = SassLibrary.INSTANCE.sass_option_set_source_map_file(this.nativeOptions, file)
 
-  def includePaths: Iterable[Path] = Option(SassLibrary.INSTANCE.sass_option_get_include_path(this.nativeOptions)) match {
-    case None => Seq()
-    case Some(includePathsString) => includePathsString.split(File.pathSeparator).map(Paths.get(_))
+  def includePaths: Iterable[Path] = {
+    val includePathSize = SassLibrary.INSTANCE.sass_option_get_include_path_size(this.nativeOptions)
+
+    if (includePathSize.longValue() == 0) {
+      Seq()
+    } else {
+      Option(SassLibrary.INSTANCE.sass_option_get_include_path(this.nativeOptions, includePathSize)) match {
+        case None => Seq()
+        case Some(includePathsString) => includePathsString.split(File.pathSeparator).map(Paths.get(_))
+      }
+    }
   }
   def includePaths_=(paths: String): Unit = SassLibrary.INSTANCE.sass_option_set_include_path(this.nativeOptions, paths)
   def includePaths_=(paths: Path*): Unit = includePaths_=(paths.map(_.toFile.getAbsolutePath).mkString(File.pathSeparator))

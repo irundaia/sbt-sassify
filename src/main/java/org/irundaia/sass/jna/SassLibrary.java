@@ -747,11 +747,13 @@ public interface SassLibrary extends Library {
 	 * <i>native declaration : src/native/include/sass/context.h:81</i>
 	 */
 	String sass_option_get_plugin_path(SassLibrary.Sass_Options options);
+
+	SizeT sass_option_get_include_path_size(SassLibrary.Sass_Options options);
 	/**
-	 * Original signature : <code>char* sass_option_get_include_path(Sass_Options*)</code><br>
+	 * Original signature : <code>char* sass_option_get_include_path(Sass_Options*, size_t)</code><br>
 	 * <i>native declaration : src/native/include/sass/context.h:82</i>
 	 */
-	String sass_option_get_include_path(SassLibrary.Sass_Options options);
+	String sass_option_get_include_path(SassLibrary.Sass_Options options, SizeT size);
 	/**
 	 * Original signature : <code>char* sass_option_get_source_map_file(Sass_Options*)</code><br>
 	 * <i>native declaration : src/native/include/sass/context.h:83</i>
