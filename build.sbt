@@ -1,14 +1,7 @@
-import com.typesafe.sbt.GitVersioning
-import com.typesafe.sbt.SbtGit.git
-
-import java.time.LocalDate
-
 lazy val sbtSassify = project
   .in(file("."))
   .enablePlugins(AutomateHeaderPlugin)
-  .enablePlugins(GitVersioning)
   .enablePlugins(ScriptedPlugin)
-  .settings(git.gitUncommittedChanges := false)
 
 name := "sbt-sassify"
 organization := "org.irundaia.sbt"
@@ -48,7 +41,6 @@ bintrayRepository := "sbt-plugins"
 bintrayReleaseOnPublish in ThisBuild := false
 publishMavenStyle := false
 licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html"))
-publish := (publish dependsOn (test in Test)).value
 
 // Scalastyle settings
 lazy val testScalastyle = taskKey[Unit]("testScalastyle")

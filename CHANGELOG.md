@@ -87,3 +87,8 @@
 
 ## 1.4.8
 - Upgrade to `libsass` 3.4.2
+
+## 1.4.9
+- Upgrade to `libsass` 3.4.5
+- Upgrade to `sbt` 0.13.15
+- Upgrade to `sbt-web` to 1.4.1
