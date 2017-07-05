@@ -48,7 +48,7 @@ bintrayRepository := "sbt-plugins"
 bintrayReleaseOnPublish in ThisBuild := false
 publishMavenStyle := false
 licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html"))
-publish := publish dependsOn (test in Test)
+publish := (publish dependsOn (test in Test)).value
 
 headers := Map(
   "scala" -> Apache2_0(LocalDate.now().getYear.toString, "Han van Venrooij"),
@@ -59,7 +59,6 @@ headers := Map(
 lazy val testScalastyle = taskKey[Unit]("testScalastyle")
 testScalastyle := org.scalastyle.sbt.ScalastylePlugin.scalastyle.in(Compile).toTask("").value
 org.scalastyle.sbt.ScalastylePlugin.scalastyleFailOnError := true
-test := test in Test dependsOn testScalastyle
 
 // Scripted settings
 ScriptedPlugin.scriptedBufferLog := false
