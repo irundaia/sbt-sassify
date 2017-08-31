@@ -20,7 +20,7 @@ fork in Test := true
 
 javaOptions += "-Djna.nosys=true"
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.4.1")
+addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.4.2")
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.1" % "test",
