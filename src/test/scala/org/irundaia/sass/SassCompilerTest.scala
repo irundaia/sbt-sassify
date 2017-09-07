@@ -21,7 +21,6 @@ import java.nio.file.{Paths, Files}
 import org.scalatest.{FunSpec, MustMatchers}
 
 import scala.io.Source
-import scala.util.Failure
 
 class SassCompilerTest extends FunSpec with MustMatchers {
   val testDir = Files.createTempDirectory("sbt-sassify")

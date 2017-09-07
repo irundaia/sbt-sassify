@@ -1,19 +1,19 @@
 import com.typesafe.sbt.GitVersioning
 import com.typesafe.sbt.SbtGit.git
-import de.heikoseeberger.sbtheader.AutomateHeaderPlugin
-import de.heikoseeberger.sbtheader.license.Apache2_0
-import de.heikoseeberger.sbtheader.HeaderKey._
+
 import java.time.LocalDate
 
 lazy val sbtSassify = project
   .in(file("."))
   .enablePlugins(AutomateHeaderPlugin)
   .enablePlugins(GitVersioning)
-  .settings(ScriptedPlugin.scriptedSettings)
+  .enablePlugins(ScriptedPlugin)
   .settings(git.gitUncommittedChanges := false)
 
 name := "sbt-sassify"
 organization := "org.irundaia.sbt"
+organizationName := "Han van Venrooij"
+startYear := Some(2017)
 sbtPlugin := true
 
 fork in Test := true
@@ -28,7 +28,7 @@ libraryDependencies ++= Seq(
 )
 
 // Compiler settings
-scalaVersion := "2.10.6"
+crossSbtVersions := Seq("1.0.1", "0.13.16")
 sourcesInBase := false
 crossPaths := false
 scalacOptions ++= Seq(
@@ -50,16 +50,11 @@ publishMavenStyle := false
 licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html"))
 publish := (publish dependsOn (test in Test)).value
 
-headers := Map(
-  "scala" -> Apache2_0(LocalDate.now().getYear.toString, "Han van Venrooij"),
-  "java" -> Apache2_0(LocalDate.now.getYear.toString, "Han van Venrooij")
-)
-
 // Scalastyle settings
 lazy val testScalastyle = taskKey[Unit]("testScalastyle")
-testScalastyle := org.scalastyle.sbt.ScalastylePlugin.scalastyle.in(Compile).toTask("").value
-org.scalastyle.sbt.ScalastylePlugin.scalastyleFailOnError := true
+testScalastyle := scalastyle.in(Compile).toTask("").value
+scalastyleFailOnError := true
 
 // Scripted settings
-ScriptedPlugin.scriptedBufferLog := false
-ScriptedPlugin.scriptedLaunchOpts += "-Dplugin.version=" + version.value
+scriptedBufferLog := false
+scriptedLaunchOpts += "-Dplugin.version=" + version.value

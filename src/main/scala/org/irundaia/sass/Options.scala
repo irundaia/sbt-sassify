@@ -21,8 +21,6 @@ import java.nio.file.{Path, Paths}
 
 import org.irundaia.sass.jna.SassLibrary
 
-import scala.language.implicitConversions
-
 case class Options(nativeOptions: SassLibrary.Sass_Options) {
   def precision: Int = SassLibrary.INSTANCE.sass_option_get_precision(this.nativeOptions)
   def precision_=(precision: Int): Unit = SassLibrary.INSTANCE.sass_option_set_precision(this.nativeOptions, precision)

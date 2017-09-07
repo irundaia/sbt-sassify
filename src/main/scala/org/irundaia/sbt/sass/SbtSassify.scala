@@ -25,8 +25,6 @@ import sbt.Keys._
 import sbt._
 import xsbti.{Problem, Severity}
 
-import scala.language.implicitConversions
-
 object SbtSassify extends AutoPlugin {
   override def requires: Plugins = SbtWeb
   override def trigger: PluginTrigger = AllRequirements
@@ -68,6 +66,8 @@ object SbtSassify extends AutoPlugin {
       val sourceDir = (sourceDirectory in Assets).value
       val targetDir = (resourceManaged in sassify in Assets).value
       val webJarsDir = (webJarsDirectory in Assets).value
+      val log = streams.value.log
+      val sassReporter = (reporter in sassify).value
 
       val sources = (sourceDir ** ((includeFilter in sassify in Assets).value -- (excludeFilter in sassify in Assets).value)).get
       lazy val compilerSettings = CompilerSettings(
@@ -83,10 +83,10 @@ object SbtSassify extends AutoPlugin {
 
       val results = incremental.syncIncremental((streams in Assets).value.cacheDirectory / "run", sources) {
         modifiedSources: Seq[File] =>
-          val startInstant = System.currentTimeMillis
+          val startInstant = System.currentTimeMillis          
 
           if (modifiedSources.nonEmpty)
-            streams.value.log.info(s"Sass compiling on ${modifiedSources.size} source(s)")
+            log.info(s"Sass compiling on ${modifiedSources.size} source(s)")
 
           // Compile all modified sources
           val compilationResults: Map[File, Either[CompilationFailure, CompilationSuccess]] = modifiedSources
@@ -113,7 +113,7 @@ object SbtSassify extends AutoPlugin {
             case (f, Left(e)) =>
               new GeneralProblem(e.getMessage, f)
           }.toSeq
-          CompileProblems.report((reporter in sassify).value, problems)
+          CompileProblems.report(sassReporter, problems)
 
           // Collect the created files
           val createdFiles: Seq[File] = compilationResults
@@ -127,7 +127,7 @@ object SbtSassify extends AutoPlugin {
           val endInstant = System.currentTimeMillis
 
           if (createdFiles.nonEmpty)
-            streams.value.log.info(s"Sass compilation done in ${endInstant - startInstant} ms. ${createdFiles.size} resulting css/source map file(s)")
+            log.info(s"Sass compilation done in ${endInstant - startInstant} ms. ${createdFiles.size} resulting css/source map file(s)")
 
           (opResults, createdFiles)
       }(fileHasherIncludingOptions)
