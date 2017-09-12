@@ -16,7 +16,7 @@ organizationName := "Han van Venrooij"
 startYear := Some(2017)
 sbtPlugin := true
 
-fork in Test := true
+fork in Test := false
 
 javaOptions += "-Djna.nosys=true"
 
