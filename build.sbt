@@ -33,6 +33,7 @@ scalacOptions ++= Seq(
   "-encoding",
   "UTF-8"
 )
+javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint")
 
 // Bintray settings
 bintrayOrganization in bintray := None
