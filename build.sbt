@@ -51,3 +51,19 @@ scalastyleFailOnError := true
 // Scripted settings
 scriptedBufferLog := false
 scriptedLaunchOpts += "-Dplugin.version=" + version.value
+
+import ReleaseTransformations._
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runClean,
+  releaseStepCommandAndRemaining("test"),
+  releaseStepCommandAndRemaining("scripted"),
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+  publishArtifacts,
+  releaseStepCommandAndRemaining("^ publish"),
+  setNextVersion,
+  commitNextVersion,
+  pushChanges)
