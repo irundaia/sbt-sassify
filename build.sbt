@@ -13,15 +13,15 @@ fork in Test := false
 
 javaOptions += "-Djna.nosys=true"
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.4.2")
+addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.4.3")
 
 libraryDependencies ++= Seq(
-  "org.scalatest" %% "scalatest" % "3.0.1" % "test",
-  "net.java.dev.jna" % "jna" % "4.2.2"
+  "org.scalatest" %% "scalatest" % "3.0.5" % "test",
+  "net.java.dev.jna" % "jna" % "4.5.1"
 )
 
 // Compiler settings
-crossSbtVersions := Seq("1.0.1", "0.13.16")
+crossSbtVersions := Seq("1.1.1", "0.13.16")
 sourcesInBase := false
 crossPaths := false
 scalacOptions ++= Seq(
