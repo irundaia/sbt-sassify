@@ -92,3 +92,15 @@
 - Upgrade to `libsass` 3.4.5
 - Upgrade to `sbt` 0.13.15
 - Upgrade to `sbt-web` to 1.4.1
+
+## 1.4.10
+- Cross build for scala 2.12
+- Cross build for sbt 1.*
+
+## 1.4.11
+- Force JDK 8 support
+
+## 1.4.12
+- Upgrade to `libsass` 3.4.9
+- Upgrade to `sbt` 1.1.1
+- Fix string encoding issue with SBT 1.*
