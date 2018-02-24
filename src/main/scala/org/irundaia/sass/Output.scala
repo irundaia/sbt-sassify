@@ -40,8 +40,8 @@ object Output {
 
     if (instance.sass_context_get_error_status(nativeContext) == 0) {
       SassOutput(
-        instance.sass_context_get_output_string(nativeContext),
-        instance.sass_context_get_source_map_string(nativeContext),
+        instance.sass_context_get_output_string(nativeContext).getString(0, "UTF-8"),
+        instance.sass_context_get_source_map_string(nativeContext).getString(0, "UTF-8"),
         instance.sass_context_get_included_files(nativeContext)
       )
     } else {
