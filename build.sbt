@@ -6,7 +6,7 @@ lazy val sbtSassify = project
 name := "sbt-sassify"
 organization := "org.irundaia.sbt"
 organizationName := "Han van Venrooij"
-startYear := Some(2017)
+startYear := Some(2018)
 sbtPlugin := true
 
 fork in Test := false
