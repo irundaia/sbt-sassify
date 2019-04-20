@@ -1,7 +1,7 @@
 lazy val sbtSassify = project
   .in(file("."))
   .enablePlugins(AutomateHeaderPlugin)
-  .enablePlugins(ScriptedPlugin)
+  .enablePlugins(SbtPlugin)
 
 name := "sbt-sassify"
 organization := "org.irundaia.sbt"
@@ -21,7 +21,7 @@ libraryDependencies ++= Seq(
 )
 
 // Compiler settings
-crossSbtVersions := Seq("1.1.1", "0.13.16")
+crossSbtVersions := Seq("1.2.8", "1.1.6", "0.13.17")
 sourcesInBase := false
 crossPaths := false
 scalacOptions ++= Seq(

@@ -10,8 +10,9 @@ jdk:
 
 env:
   matrix:
-    - TRAVIS_SBT_VERSION=0.13.16
-    - TRAVIS_SBT_VERSION=1.0.1
+    - TRAVIS_SBT_VERSION=0.13.17
+    - TRAVIS_SBT_VERSION=1.1.6
+    - TRAVIS_SBT_VERSION=1.2.8
 
 script:
   sbt ^^$TRAVIS_SBT_VERSION test scripted
