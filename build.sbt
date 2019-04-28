@@ -64,6 +64,7 @@ releaseProcess := Seq[ReleaseStep](
   tagRelease,
   publishArtifacts,
   releaseStepCommandAndRemaining("^ publish"),
+  releaseStepCommandAndRemaining("bintrayRelease"),
   setNextVersion,
   commitNextVersion,
   pushChanges)
