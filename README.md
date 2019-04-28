@@ -6,7 +6,7 @@ An sbt plugin that enables you to use [Sass](http://sass-lang.com/) in your [sbt
 This plugin is a reimplementation of [sbt-sass](https://github.com/ShaggyYeti/sbt-sass). Since I wasn't allowed to install the sass command line compiler on my company's' webserver (damn you corporate IT), I decided to rewrite the plugin to use [libsass](https://github.com/sass/libsass) instead. Due to these changes, the plugin no longer resembled the old plugin, which is why I decided to host it myself.
 
 ## Sass language version
-This plugin is based on [libsass](https://github.com/sass/libsass) version 3.4.9, that implements the Sass 3.4 specification.
+This plugin is based on [libsass](https://github.com/sass/libsass) version 3.5.5, that implements the Sass 3.4 specification.
 
 ## Compatibility
 The sbt-sassify plugin supports the following operating systems:
@@ -21,7 +21,7 @@ This plugin has been tested against sbt-web and the Play framework versions 1.4.
 To use the `sbt-sassify` plugin you can include the plugin in `project/plugins.sbt` or `project/sbt-sassify.sbt` like this:
 
 ```scala
-addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.4.12")
+addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.4.13")
 ```
 
 ### Directory structure

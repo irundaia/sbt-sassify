@@ -104,3 +104,6 @@
 - Upgrade to `libsass` 3.4.9
 - Upgrade to `sbt` 1.1.1
 - Fix string encoding issue with SBT 1.*
+
+## 1.4.13
+- Upgrade to `libsassz 3.5.5
