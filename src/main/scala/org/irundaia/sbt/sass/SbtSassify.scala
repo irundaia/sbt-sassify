@@ -83,7 +83,7 @@ object SbtSassify extends AutoPlugin {
 
       val results = incremental.syncIncremental((streams in Assets).value.cacheDirectory / "run", sources) {
         modifiedSources: Seq[File] =>
-          val startInstant = System.currentTimeMillis          
+          val startInstant = System.currentTimeMillis
 
           if (modifiedSources.nonEmpty)
             log.info(s"Sass compiling on ${modifiedSources.size} source(s)")
