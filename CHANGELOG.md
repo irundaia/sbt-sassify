@@ -106,4 +106,11 @@
 - Fix string encoding issue with SBT 1.*
 
 ## 1.4.13
-- Upgrade to `libsassz 3.5.5
+- Upgrade to `libsass` 3.5.5
+
+## 1.5.0
+- Upgrade to `libsass` 3.6.4
+- Allow setting the floating point precision
+- Allow setting the file extension of compiled files
+- Prefer loading the bundled libsass binaries when the platform is supported
+- Upgrade `jna` to 5.5.0

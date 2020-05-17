@@ -21,7 +21,7 @@ This plugin has been tested against sbt-web and the Play framework versions 1.4.
 To use the `sbt-sassify` plugin you can include the plugin in `project/plugins.sbt` or `project/sbt-sassify.sbt` like this:
 
 ```scala
-addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.4.13")
+addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.5.0")
 ```
 
 ### Directory structure
@@ -93,13 +93,15 @@ Then to use it in your project, you can use:
 
 Some options can be passed to the Sass compiler. For an overview, see below:
 
-| Setting            | Description                                                          | Supported values               | Default value |
-|--------------------|----------------------------------------------------------------------|--------------------------------|---------------|
-| cssStyle           | The style of the output CSS file.                                    | `Minified`/`Maxified`/`Sassy`  | `Minified`    |
-| generateSourceMaps | Whether or not source files are generated.                           | `true`/`false`                 | `true`        |
-| embedSources       | Whether or not the sources should be embedded in the source map file.| `true`/`false`                 | `true`        |
-| syntaxDetection    | How to determine whether the sass/scss syntax is used.               | `Auto`/`ForceScss`/`ForceSass` | `Auto`        |
-| assetRootURL      | The base URL used to locate the assets.                              | Any `String`                   | `/assets`     |
+| Setting                | Description                                                           | Supported values               | Default value |
+|------------------------|-----------------------------------------------------------------------|--------------------------------|---------------|
+| cssStyle               | The style of the output CSS file.                                     | `Minified`/`Maxified`/`Sassy`  | `Minified`    |
+| generateSourceMaps     | Whether or not source files are generated.                            | `true`/`false`                 | `true`        |
+| embedSources           | Whether or not the sources should be embedded in the source map file. | `true`/`false`                 | `true`        |
+| syntaxDetection        | How to determine whether the sass/scss syntax is used.                | `Auto`/`ForceScss`/`ForceSass` | `Auto`        |
+| assetRootURL           | The base URL used to locate the assets.                               | Any `String`                   | `/assets`     |
+| floatingPointPrecision | The number of digits of precision used when rounding decimal numbers. | Any positive `Int`             | `10`          |
+| extension              | The extension of the compiled file                                    | Any `String`                   | `css`         |
 
 Changing the settings can be done by including the following settings in your build.sbt file:
 
