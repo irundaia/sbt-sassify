@@ -40,6 +40,7 @@ object SbtSassify extends AutoPlugin {
       val syntaxDetection =
         SettingKey[SyntaxDetection]("syntaxDetection", "How to determine whether the sass/scss syntax is used.")
       val assetRootURL = SettingKey[String]("assetRootURL", "The base URL used to locate the assets.")
+      val floatingPointPrecision = SettingKey[Int]("floatingPointPrecision", "The number of digits of precision used when rounding decimal numbers.")
     }
   }
 
@@ -51,7 +52,8 @@ object SbtSassify extends AutoPlugin {
     embedSources := true,
     syntaxDetection := Auto,
     assetRootURL := "/assets/",
-    javaOptions += "-Djna.nosys=true"
+    javaOptions += "-Djna.nosys=true",
+    floatingPointPrecision := 10,
   )
 
   val baseSbtSassifySettings = Seq(
@@ -76,7 +78,9 @@ object SbtSassify extends AutoPlugin {
         embedSources.value,
         syntaxDetection.value,
         Seq(sourceDir.toPath, webJarsDir.toPath),
-        assetRootURL.value)
+        assetRootURL.value,
+        floatingPointPrecision.value
+      )
 
       implicit val fileHasherIncludingOptions: OpInputHasher[File] =
         OpInputHasher[File](f => OpInputHash.hashString(f.getCanonicalPath + compilerSettings.toString))

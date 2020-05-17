@@ -1,4 +1,5 @@
 import scala.io.Codec
+import org.irundaia.sbt.sass._
 
 lazy val root = (project in file(".")).enablePlugins(SbtWeb)
 
@@ -10,6 +11,8 @@ playVersion := {
     case Some((2, n)) if n > 10 => "2.6.2"
   }
 }
+
+SassKeys.floatingPointPrecision := 5
 
 libraryDependencies ++= Seq(
   "org.webjars.npm" % "font-awesome" % "4.7.0",

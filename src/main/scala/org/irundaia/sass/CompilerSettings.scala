@@ -24,7 +24,8 @@ case class CompilerSettings(
      embedSources: Boolean,
      syntaxDetection: SyntaxDetection,
      includePaths: Seq[Path],
-     sourceMapRoot: String){
+     sourceMapRoot: String,
+     precision: Int) {
 
   def applySettings(sourceFile: Path, options: Options): Unit = {
     options.indentedSyntaxSrc = syntaxDetection match {
@@ -37,5 +38,6 @@ case class CompilerSettings(
     options.sourceMapContents = embedSources
     options.includePaths ++= includePaths
     options.sourceMapRoot = sourceMapRoot
+    options.precision = precision
   }
 }
