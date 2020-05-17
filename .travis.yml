@@ -6,7 +6,7 @@ notifications:
   email: false
 
 jdk:
-   - oraclejdk8
+   - openjdk8
 
 env:
   matrix:
