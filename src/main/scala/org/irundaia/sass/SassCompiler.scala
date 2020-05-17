@@ -24,7 +24,23 @@ import org.irundaia.sass.jna.SassLibrary
 import org.irundaia.util.extensions._
 
 object SassCompiler {
-  private val library = "sass"
+  private val library = {
+    val osName = System.getProperty("os.name").toLowerCase
+    val osArch = System.getProperty("os.arch").toLowerCase
+
+    val optResourcePath = (osName, osArch) match {
+      case (name, arch) if name.startsWith("win") => Some(s"/win32-$arch/sass.dll")
+      case (name, arch) if name.startsWith("linux") => Some(s"/linux-$arch/libsass")
+      case (name, _) if name.startsWith("mac") => Some("/darwin/libsass")
+      case _ => None
+    }
+
+    optResourcePath
+      .map(classOf[SassLibrary].getResource)
+      .flatMap(Option.apply)
+      .map(_.getPath)
+      .getOrElse("sass")
+  }
   val libraryInstance: SassLibrary = Native.load(library, classOf[SassLibrary])
 
   private val charset = StandardCharsets.UTF_8
