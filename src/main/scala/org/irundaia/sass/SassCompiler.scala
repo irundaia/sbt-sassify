@@ -50,8 +50,8 @@ object SassCompiler {
       targetDir.resolve(sourceDir.relativize(sass)).resolveSibling(sass.withExtension(extension).getFileName)
 
     // Determine target files
-    val css = sourceWithExtn("css")
-    val sourceMap = sourceWithExtn("css.map")
+    val css = sourceWithExtn(compilerSettings.extension)
+    val sourceMap = sourceWithExtn(s"${compilerSettings.extension}.map")
 
     // Make sure that the target directory is created
     Files.createDirectories(css.getParent)
@@ -62,7 +62,7 @@ object SassCompiler {
     // Output the CSS and source map files
     eitherErrorOrOutput.right.foreach(output => {
         outputCss(output, css)
-        outputSourceMap(sass, sourceMap, output, compilerSettings)
+        outputSourceMap(sourceMap, output, compilerSettings)
       }
     )
 
@@ -70,16 +70,16 @@ object SassCompiler {
     eitherErrorOrOutput
         .fold(
           error => Left(CompilationFailure(error)),
-          output => Right(determineCompilationDependencies(output, sass, css, sourceMap)))
+          output => Right(determineCompilationDependencies(output, css, sourceMap)))
   }
 
-  def doCompile(source: Path, compilerSettings: CompilerSettings): Either[SassError, SassOutput] = {
+  private def doCompile(source: Path, compilerSettings: CompilerSettings): Either[SassError, SassOutput] = {
     val context = Context(source)
 
     compilerSettings.applySettings(source, context.options)
     context.options.inputPath = source
-    context.options.outputPath = source.withExtension("css")
-    context.options.sourceMapPath = source.withExtension("css.map")
+    context.options.outputPath = source.withExtension(compilerSettings.extension)
+    context.options.sourceMapPath = source.withExtension(s"${compilerSettings.extension}.map")
 
     libraryInstance.sass_compile_file_context(context.nativeContext)
 
@@ -95,14 +95,14 @@ object SassCompiler {
 
   private def outputCss(compilationResult: SassOutput, css: Path) = Files.write(css, compilationResult.css.getBytes(charset))
 
-  private def outputSourceMap(source: Path, sourceMap: Path, output: SassOutput, compilerSettings: CompilerSettings) =
+  private def outputSourceMap(sourceMap: Path, output: SassOutput, compilerSettings: CompilerSettings) =
     Option(output.sourceMap) match {
       case Some(sourceMapContent) if compilerSettings.generateSourceMaps =>
         Files.write(sourceMap, sourceMapContent.getBytes(charset))
       case _ => // Do not output any source map
     }
 
-  def determineCompilationDependencies(compilationResult: SassOutput, sass: Path, css: Path, sourceMap: Path): CompilationSuccess = {
+  private def determineCompilationDependencies(compilationResult: SassOutput, css: Path, sourceMap: Path): CompilationSuccess = {
     val filesWritten = if (Files.exists(sourceMap))
       Set(css, sourceMap)
     else

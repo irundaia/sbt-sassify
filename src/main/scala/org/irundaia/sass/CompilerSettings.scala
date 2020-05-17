@@ -25,7 +25,8 @@ case class CompilerSettings(
      syntaxDetection: SyntaxDetection,
      includePaths: Seq[Path],
      sourceMapRoot: String,
-     precision: Int) {
+     precision: Int,
+     extension: String) {
 
   def applySettings(sourceFile: Path, options: Options): Unit = {
     options.indentedSyntaxSrc = syntaxDetection match {
