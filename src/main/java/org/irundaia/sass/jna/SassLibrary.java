@@ -22,9 +22,6 @@ import com.sun.jna.ptr.PointerByReference;
 import java.nio.ByteBuffer;
 
 public interface SassLibrary extends Library {
-	String JNA_LIBRARY_NAME = "sass";
-	SassLibrary INSTANCE = (SassLibrary)Native.loadLibrary(SassLibrary.JNA_LIBRARY_NAME, SassLibrary.class);
-
 	interface Sass_Output_Style {
 		int SASS_STYLE_NESTED = 0;
 		int SASS_STYLE_EXPANDED = 1;

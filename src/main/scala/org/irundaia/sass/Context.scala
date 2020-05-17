@@ -25,10 +25,10 @@ case class Context(nativeContext: SassLibrary.Sass_File_Context) {
   def options: Options = Options(this)
 
   def cleanup(): Unit = {
-    SassLibrary.INSTANCE.sass_delete_file_context(nativeContext)
+    SassCompiler.libraryInstance.sass_delete_file_context(nativeContext)
   }
 }
 
 object Context {
-  def apply(file: Path): Context = Context(SassLibrary.INSTANCE.sass_make_file_context(file.toFile.getAbsolutePath))
+  def apply(file: Path): Context = Context(SassCompiler.libraryInstance.sass_make_file_context(file.toFile.getAbsolutePath))
 }

@@ -19,11 +19,15 @@ package org.irundaia.sass
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, Paths}
 
+import com.sun.jna.Native
 import org.irundaia.sass.jna.SassLibrary
 import org.irundaia.util.extensions._
 
 object SassCompiler {
-  val charset = StandardCharsets.UTF_8
+  private val library = "sass"
+  val libraryInstance: SassLibrary = Native.load(library, classOf[SassLibrary])
+
+  private val charset = StandardCharsets.UTF_8
 
   def compile(sass: Path, sourceDir: Path, targetDir: Path, compilerSettings: CompilerSettings): Either[CompilationFailure, CompilationSuccess] = {
     def sourceWithExtn(extension: String): Path =
@@ -61,7 +65,7 @@ object SassCompiler {
     context.options.outputPath = source.withExtension("css")
     context.options.sourceMapPath = source.withExtension("css.map")
 
-    SassLibrary.INSTANCE.sass_compile_file_context(context.nativeContext)
+    libraryInstance.sass_compile_file_context(context.nativeContext)
 
     val result = Output(context) match {
       case e: SassError => Left(e)

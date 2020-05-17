@@ -20,6 +20,8 @@ import com.sun.jna.IntegerType;
 import com.sun.jna.Native;
 
 public class SizeT extends IntegerType {
+  private static final long serialVersionUID = 1L;
+
   /** Size of a size_t integer, in bytes. */
   public static int SIZE = Native.SIZE_T_SIZE;
 

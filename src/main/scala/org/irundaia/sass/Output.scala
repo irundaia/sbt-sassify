@@ -16,8 +16,6 @@
 
 package org.irundaia.sass
 
-import org.irundaia.sass.jna.SassLibrary
-
 sealed trait Output
 
 case class SassError(
@@ -35,7 +33,7 @@ case class SassOutput(
 
 object Output {
   def apply(context: Context): Output = {
-    val instance = SassLibrary.INSTANCE
+    val instance = SassCompiler.libraryInstance
     val nativeContext = instance.sass_file_context_get_context(context.nativeContext)
 
     if (instance.sass_context_get_error_status(nativeContext) == 0) {
