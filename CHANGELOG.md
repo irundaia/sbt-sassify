@@ -114,3 +114,6 @@
 - Allow setting the file extension of compiled files
 - Prefer loading the bundled libsass binaries when the platform is supported
 - Upgrade `jna` to 5.5.0
+
+## 1.5.1
+- Revert loading the bundled libsass manually
