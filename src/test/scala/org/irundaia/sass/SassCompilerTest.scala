@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Han van Venrooij
+ * Copyright 2022 Han van Venrooij
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

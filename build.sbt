@@ -22,7 +22,7 @@ developers := List(Developer(
   url=url("https://github.com/irundaia"),
 ))
 
-fork in Test := false
+Test / fork := false
 
 javaOptions += "-Djna.nosys=true"
 
@@ -61,7 +61,7 @@ sonatypeDefaultResolver := Opts.resolver.sonatypeStaging
 
 // Scalastyle settings
 lazy val testScalastyle = taskKey[Unit]("testScalastyle")
-testScalastyle := scalastyle.in(Compile).toTask("").value
+testScalastyle := (Compile / scalastyle).toTask("").value
 scalastyleFailOnError := true
 
 // Scripted settings

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Han van Venrooij
+ * Copyright 2022 Han van Venrooij
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,22 +59,22 @@ object SbtSassify extends AutoPlugin {
   )
 
   val baseSbtSassifySettings = Seq(
-    excludeFilter in sassify := HiddenFileFilter || "_*",
-    includeFilter in sassify := "*.sass" || "*.scss",
+    sassify / excludeFilter := HiddenFileFilter || "_*",
+    sassify / includeFilter := "*.sass" || "*.scss",
 
-    managedResourceDirectories += (resourceManaged in sassify in Assets).value,
-    resourceManaged in sassify in Assets := webTarget.value / "sass" / "main",
-    resourceGenerators in Assets += sassify in Assets,
+    managedResourceDirectories += (Assets / sassify / resourceManaged).value,
+    Assets / sassify / resourceManaged := webTarget.value / "sass" / "main",
+    Assets / resourceGenerators += Assets / sassify,
 
-    sassify in Assets := Def.task {
-      val sourceDir = (sourceDirectory in Assets).value
-      val targetDir = (resourceManaged in sassify in Assets).value
-      val webJarsDir = (webJarsDirectory in Assets).value
+    Assets / sassify := Def.task {
+      val sourceDir = (Assets / sourceDirectory).value
+      val targetDir = (Assets / sassify / resourceManaged).value
+      val webJarsDir = (Assets / webJarsDirectory).value
       val log = streams.value.log
-      val sassReporter = (reporter in sassify).value
+      val sassReporter = (sassify / reporter).value
 
-      val sources = (sourceDir ** ((includeFilter in sassify in Assets).value -- (excludeFilter in sassify in Assets).value)).get
-      lazy val compilerSettings = CompilerSettings(
+      val sources = (sourceDir ** ((Assets / sassify / includeFilter).value -- (Assets / sassify / excludeFilter).value)).get
+      val compilerSettings = CompilerSettings(
         cssStyle.value,
         generateSourceMaps.value,
         embedSources.value,
@@ -82,13 +82,14 @@ object SbtSassify extends AutoPlugin {
         Seq(sourceDir.toPath, webJarsDir.toPath),
         assetRootURL.value,
         floatingPointPrecision.value,
-        extension.value
+        extension.value,
+        dartSassDir.value.map(_.toPath)
       )
 
       implicit val fileHasherIncludingOptions: OpInputHasher[File] =
         OpInputHasher[File](f => OpInputHash.hashString(f.getCanonicalPath + compilerSettings.toString))
 
-      val results = incremental.syncIncremental((streams in Assets).value.cacheDirectory / "run", sources) {
+      val results = incremental.syncIncremental((Assets / streams).value.cacheDirectory / "run", sources) {
         modifiedSources: Seq[File] =>
           val startInstant = System.currentTimeMillis
 
@@ -141,7 +142,7 @@ object SbtSassify extends AutoPlugin {
 
       // Return the dependencies
       (results._1 ++ results._2.toSet).toSeq
-    }.dependsOn(WebKeys.webModules in Assets).value
+    }.dependsOn(Assets / WebKeys.webModules).value
   )
 
   override def projectSettings: Seq[Setting[_]] = inConfig(Assets)(baseSbtSassifySettings)
