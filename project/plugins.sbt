@@ -17,3 +17,11 @@ addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "1.0.0")
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.5.3")
 
 addCompilerPlugin("org.psywerx.hairyfotr" %% "linter" % "0.1.17")
+
+addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.3")
+
+libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % "0.11.1"
+
+addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.5.3")
+
+addSbtPlugin("com.typesafe.sbt" % "sbt-web-build-base" % "1.2.3")

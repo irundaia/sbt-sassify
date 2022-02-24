@@ -25,7 +25,7 @@ import scala.io.Source
 
 class LibSassCompilerTest extends AnyFunSpec with Matchers {
   val testDir = Files.createTempDirectory("sbt-sassify")
-  val compilerSettings = CompilerSettings(Minified, true, true, Auto, Seq(), "", 10, "css")
+  val compilerSettings = CompilerSettings(Minified, true, true, Auto, Seq(), "", 10, "css", None)
 
   describe("The LibSassCompiler") {
     describe("using well formed scss input") {

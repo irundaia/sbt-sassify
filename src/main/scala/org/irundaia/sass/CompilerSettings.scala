@@ -25,4 +25,5 @@ case class CompilerSettings(outputStyle: CssStyle,
                             includePaths: Seq[Path],
                             sourceMapRoot: String,
                             precision: Int,
-                            extension: String)
+                            extension: String,
+                            workingDir: Option[Path])

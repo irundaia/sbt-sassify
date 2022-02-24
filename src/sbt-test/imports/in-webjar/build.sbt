@@ -5,7 +5,7 @@ lazy val playVersion = settingKey[String]("Play version in relation to current S
 playVersion := {
   CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, 10)) => "2.4.0-2"
-    case Some((2, n)) if n > 10 => "2.6.2"
+    case Some((2, n)) if n > 10 => "2.8.8"
   }
 }
 

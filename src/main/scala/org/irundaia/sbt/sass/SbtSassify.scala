@@ -20,6 +20,7 @@ import com.typesafe.sbt.web.Import.WebKeys._
 import com.typesafe.sbt.web.SbtWeb.autoImport._
 import com.typesafe.sbt.web._
 import com.typesafe.sbt.web.incremental._
+import org.irundaia.sass.dart.DartSassCompiler
 import org.irundaia.sass.libsass.LibSassCompiler
 import org.irundaia.sass.{CompilationFailure, CompilationSuccess, CompilerSettings, CssStyle, SyntaxDetection, Severity => SassSeverity}
 import org.irundaia.util.extensions.RichPath
@@ -37,6 +38,11 @@ object SbtSassify extends AutoPlugin {
     object SassKeys {
       val sassify = TaskKey[Seq[File]]("sassify", "Generate css files from scss and sass files.")
       val cssStyle = SettingKey[CssStyle]("cssStyle", "The style of the to-be-output CSS files.")
+      val useDartSass = SettingKey[Boolean]("useDartSass", "Whether or not to use the dart sass compiler.")
+      val dartSassDir = SettingKey[Option[File]](
+        "dartSassDir",
+        "The directory that is used by sbt-sassify to run the dart sass compiler. Make sure that executables in this file system are allowed to be run."
+      )
       val generateSourceMaps =
         SettingKey[Boolean]("generateSourceMaps", "Whether or not source map files should be generated.")
       val embedSources =
@@ -53,6 +59,8 @@ object SbtSassify extends AutoPlugin {
 
   override lazy val buildSettings = Seq(
     cssStyle := Minified,
+    useDartSass := false,
+    dartSassDir := None,
     generateSourceMaps := true,
     embedSources := true,
     syntaxDetection := Auto,
@@ -86,11 +94,15 @@ object SbtSassify extends AutoPlugin {
         Seq(sourceDir.toPath, webJarsDir.toPath),
         assetRootURL.value,
         floatingPointPrecision.value,
-        extension.value
+        extension.value,
+        dartSassDir.value.map(_.toPath)
       )
+      val compiler =
+        if (useDartSass.value) DartSassCompiler(compilerSettings)
+        else LibSassCompiler(compilerSettings)
 
       implicit val fileHasherIncludingOptions: OpInputHasher[File] =
-        OpInputHasher[File](f => OpInputHash.hashString(f.getCanonicalPath + compilerSettings.toString))
+        OpInputHasher[File](f => OpInputHash.hashString(f.getCanonicalPath + compilerSettings.toString + useDartSass.value))
 
       val results = incremental.syncIncremental((Assets / streams).value.cacheDirectory / "run", sources) {
         modifiedSources: Seq[File] =>
@@ -101,7 +113,7 @@ object SbtSassify extends AutoPlugin {
 
           // Compile all modified sources
           val compilationResults: Map[Path, Either[CompilationFailure, CompilationSuccess]] =
-            LibSassCompiler(compilerSettings).compile(modifiedSources.map(_.toPath), sourceDir.toPath, targetDir.toPath)
+            compiler.compile(modifiedSources.map(_.toPath), sourceDir.toPath, targetDir.toPath)
 
           // Collect OpResults
           val opResults: Map[File, OpResult] = compilationResults.map {
