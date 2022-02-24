@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-package org.irundaia.sass
+package org.irundaia.sass.libsass
 
-import java.nio.file.{Paths, Files}
-
+import org.irundaia.sass.{Auto, CompilerSettings, Minified}
 import org.scalatest.funspec.AnyFunSpec;
 import org.scalatest.matchers.must._;
 
+import java.nio.file.{Files, Paths}
 import scala.io.Source
 
-class SassCompilerTest extends AnyFunSpec with Matchers {
+class LibSassCompilerTest extends AnyFunSpec with Matchers {
   val testDir = Files.createTempDirectory("sbt-sassify")
   val compilerSettings = CompilerSettings(Minified, true, true, Auto, Seq(), "", 10, "css")
 
-  describe("The SassCompiler") {
+  describe("The LibSassCompiler") {
     describe("using well formed scss input") {
       describe("without includes") {
         val input = Paths.get(getClass.getResource("/org/irundaia/sass/well-formed.scss").toURI)
-        val compilationResults = SassCompiler.compile(input, input.getParent, testDir, compilerSettings)
+        val compilationResults = LibSassCompiler(compilerSettings).compile(input, input.getParent, testDir)
 
         it("should compile") {
           compilationResults.isRight mustBe true
@@ -56,7 +56,7 @@ class SassCompilerTest extends AnyFunSpec with Matchers {
 
       describe("with includes") {
         val input = Paths.get(getClass.getResource("/org/irundaia/sass/well-formed-using-import.scss").toURI)
-        val compilationResults = SassCompiler.compile(input, input.getParent, testDir, compilerSettings)
+        val compilationResults = LibSassCompiler(compilerSettings).compile(input, input.getParent, testDir)
 
         it("should compile") {
           compilationResults.isRight mustBe true
@@ -83,25 +83,26 @@ class SassCompilerTest extends AnyFunSpec with Matchers {
 
     describe("using broken scss input") {
       val input = Paths.get(getClass.getResource("/org/irundaia/sass/broken-input.scss").toURI)
-      val compilationResult = SassCompiler.compile(input, input.getParent, testDir, compilerSettings)
+      val compilationResult = LibSassCompiler(compilerSettings).compile(input, input.getParent, testDir)
 
       describe("should fail compilation") {
         compilationResult.isLeft mustBe true
       }
 
       describe("should throw an exception") {
-        it("reporting Invalid CSS") {
+        it("report an error message") {
           compilationResult match {
-            case Left(exception) => exception.getMessage must include("Invalid CSS after ")
+            case Left(exception) => exception.logMessages.head.message must not be empty
             case _ => fail
           }
         }
 
-        it("reporting an error on line 2 column 15") {
+        it("reporting an error on line 2 column 16") {
           compilationResult match {
-            case Left(exception: LineBasedCompilationFailure) =>
-              exception.line mustBe 2
-              exception.column mustBe 15
+            case Left(failure) =>
+              val message = failure.logMessages.head
+              message.location.get.line mustBe 2
+              message.location.get.column mustBe 16
             case _ => fail
           }
         }

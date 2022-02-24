@@ -20,10 +20,14 @@ import com.typesafe.sbt.web.Import.WebKeys._
 import com.typesafe.sbt.web.SbtWeb.autoImport._
 import com.typesafe.sbt.web._
 import com.typesafe.sbt.web.incremental._
-import org.irundaia.sass._
+import org.irundaia.sass.libsass.LibSassCompiler
+import org.irundaia.sass.{CompilationFailure, CompilationSuccess, CompilerSettings, CssStyle, SyntaxDetection, Severity => SassSeverity}
+import org.irundaia.util.extensions.RichPath
 import sbt.Keys._
 import sbt._
 import xsbti.{Problem, Severity}
+
+import java.nio.file.Path
 
 object SbtSassify extends AutoPlugin {
   override def requires: Plugins = SbtWeb
@@ -82,8 +86,7 @@ object SbtSassify extends AutoPlugin {
         Seq(sourceDir.toPath, webJarsDir.toPath),
         assetRootURL.value,
         floatingPointPrecision.value,
-        extension.value,
-        dartSassDir.value.map(_.toPath)
+        extension.value
       )
 
       implicit val fileHasherIncludingOptions: OpInputHasher[File] =
@@ -97,30 +100,44 @@ object SbtSassify extends AutoPlugin {
             log.info(s"Sass compiling on ${modifiedSources.size} source(s)")
 
           // Compile all modified sources
-          val compilationResults: Map[File, Either[CompilationFailure, CompilationSuccess]] = modifiedSources
-            .map(inputFile => inputFile -> SassCompiler.compile(inputFile.toPath, sourceDir.toPath, targetDir.toPath, compilerSettings))
-            .toMap
+          val compilationResults: Map[Path, Either[CompilationFailure, CompilationSuccess]] =
+            LibSassCompiler(compilerSettings).compile(modifiedSources.map(_.toPath), sourceDir.toPath, targetDir.toPath)
 
           // Collect OpResults
-          val opResults: Map[File, OpResult] = compilationResults.mapValues {
-            case Right(result) => OpSuccess(result.filesRead.map(_.toFile), result.filesWritten.map(_.toFile))
-            case Left(_) => OpFailure
+          val opResults: Map[File, OpResult] = compilationResults.map {
+            case (p, Right(result)) => (p.toFile, OpSuccess(result.filesRead.map(_.toFile), result.filesWritten.map(_.toFile)))
+            case (p, Left(_)) => (p.toFile, OpFailure)
           }
 
           // Report compilation problems
-          val problems: Seq[Problem] = compilationResults.collect {
-            case (_, Left(e: LineBasedCompilationFailure)) =>
-              new LineBasedProblem(
-                e.message,
-                Severity.Error,
-                e.line,
-                e.column,
-                e.lineContent,
-                e.source
-              )
-            case (f, Left(e)) =>
-              new GeneralProblem(e.getMessage, f)
-          }.toSeq
+          val problems: Seq[Problem] = compilationResults.mapValues(_.fold(_.logMessages, _.logMessages))
+            .flatMap { case (path, messages) =>
+              messages.map(message => (path, message, message.location.map(location => location.file.line(location.line))))
+            }
+            .map { case (path, logMessage, lineContent) =>
+              logMessage.location
+                .map(location => new LineBasedProblem(
+                  logMessage.message,
+                  logMessage.level match {
+                    case SassSeverity.Warning => Severity.Warn
+                    case SassSeverity.Debug => Severity.Info
+                    case SassSeverity.Error => Severity.Error
+                  },
+                  location.line,
+                  location.column,
+                  lineContent.getOrElse(""),
+                  path.toFile
+                ))
+                .getOrElse(new GeneralProblem(logMessage.message, path.toFile) {
+                  override def severity(): Severity =
+                    logMessage.level match {
+                      case SassSeverity.Warning => Severity.Warn
+                      case SassSeverity.Debug => Severity.Info
+                      case SassSeverity.Error => Severity.Error
+                    }
+                })
+            }
+            .toSeq
           CompileProblems.report(sassReporter, problems)
 
           // Collect the created files

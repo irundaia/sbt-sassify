@@ -18,27 +18,11 @@ package org.irundaia.sass
 
 import java.nio.file.Path
 
-case class CompilerSettings(
-     outputStyle: CssStyle,
-     generateSourceMaps: Boolean,
-     embedSources: Boolean,
-     syntaxDetection: SyntaxDetection,
-     includePaths: Seq[Path],
-     sourceMapRoot: String,
-     precision: Int,
-     extension: String) {
-
-  def applySettings(sourceFile: Path, options: Options): Unit = {
-    options.indentedSyntaxSrc = syntaxDetection match {
-      case Auto => sourceFile.toString.endsWith("sass")
-      case ForceSass => true
-      case ForceScss => false
-    }
-    options.outputStyle = outputStyle
-    options.omitSourceMapUrl = !generateSourceMaps
-    options.sourceMapContents = embedSources
-    options.includePaths ++= includePaths
-    options.sourceMapRoot = sourceMapRoot
-    options.precision = precision
-  }
-}
+case class CompilerSettings(outputStyle: CssStyle,
+                            generateSourceMaps: Boolean,
+                            embedSources: Boolean,
+                            syntaxDetection: SyntaxDetection,
+                            includePaths: Seq[Path],
+                            sourceMapRoot: String,
+                            precision: Int,
+                            extension: String)

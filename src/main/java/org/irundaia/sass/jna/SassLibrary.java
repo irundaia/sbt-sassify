@@ -149,12 +149,20 @@ public interface SassLibrary extends Library {
 	String sass_import_get_error_message(SassLibrary.Sass_Import_Entry Sass_Import_Entry1);
 	void sass_delete_import_list(SassLibrary.Sass_Import_List Sass_Import_List1);
 	void sass_delete_import(SassLibrary.Sass_Import_Entry Sass_Import_Entry1);
+
 	SassLibrary.Sass_Function_List sass_make_function_list(SizeT length);
 	SassLibrary.Sass_Function_Entry sass_make_function(String signature, SassLibrary.Sass_Function_Fn cb, Pointer cookie);
 	SassLibrary.Sass_Function_Entry sass_function_get_list_entry(SassLibrary.Sass_Function_List list, SizeT pos);
 	void sass_function_set_list_entry(SassLibrary.Sass_Function_List list, SizeT pos, SassLibrary.Sass_Function_Entry cb);
 	String sass_function_get_signature(SassLibrary.Sass_Function_Entry cb);
 	SassLibrary.Sass_Function_Fn sass_function_get_function(SassLibrary.Sass_Function_Entry cb);
+
+	SassLibrary.Sass_Callee_Entry sass_compiler_get_last_callee(SassLibrary.Sass_Compiler compiler);
+	String sass_callee_get_name (Sass_Callee_Entry callee);
+	String sass_callee_get_path (Sass_Callee_Entry callee);
+	SizeT sass_callee_get_line (Sass_Callee_Entry callee);
+	SizeT sass_callee_get_column (Sass_Callee_Entry callee);
+
 	SassLibrary.Sass_File_Context sass_make_file_context(String input_path);
 	SassLibrary.Sass_Data_Context sass_make_data_context(ByteBuffer source_string);
 	int sass_compile_file_context(SassLibrary.Sass_File_Context ctx);
@@ -209,7 +217,9 @@ public interface SassLibrary extends Library {
 	void sass_option_set_source_map_root(SassLibrary.Sass_Options options, String source_map_root);
 	void sass_option_set_c_headers(SassLibrary.Sass_Options options, SassLibrary.Sass_Importer_List c_headers);
 	void sass_option_set_c_importers(SassLibrary.Sass_Options options, SassLibrary.Sass_Importer_List c_importers);
+
 	void sass_option_set_c_functions(SassLibrary.Sass_Options options, SassLibrary.Sass_Function_List c_functions);
+
 	Pointer sass_context_get_output_string(SassLibrary.Sass_Context ctx);
 	int sass_context_get_error_status(SassLibrary.Sass_Context ctx);
 	String sass_context_get_error_json(SassLibrary.Sass_Context ctx);
@@ -230,6 +240,7 @@ public interface SassLibrary extends Library {
 	SassLibrary.Sass_Import_Entry sass_compiler_get_last_import(SassLibrary.Sass_Compiler compiler);
 	void sass_option_push_plugin_path(SassLibrary.Sass_Options options, String path);
 	void sass_option_push_include_path(SassLibrary.Sass_Options options, String path);
+
 	class Sass_Function_Entry extends PointerType {
 		public Sass_Function_Entry(Pointer address) {
 			super(address);
@@ -334,6 +345,15 @@ public interface SassLibrary extends Library {
 			super(address);
 		}
 		public Sass_Data_Context() {
+			super();
+		}
+	}
+
+	class Sass_Callee_Entry extends PointerType {
+		public Sass_Callee_Entry(Pointer address) {
+			super(address);
+		}
+		public Sass_Callee_Entry() {
 			super();
 		}
 	}

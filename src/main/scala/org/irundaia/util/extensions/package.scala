@@ -17,9 +17,12 @@
 package org.irundaia.util
 
 import java.nio.file.Path
+import scala.io.Source
 
 package object extensions {
   implicit class RichPath (p: Path) {
-    def withExtension(extension: String): Path = p.resolveSibling(p.toString.replaceAll("""(.*)\.\w+""", s"$$1.$extension"))
+    def withExtension(extension: String): Path = p.resolveSibling(p.getFileName.toString.replaceAll("""(.*)\.\w+""", s"$$1.$extension"))
+    def isAncestorOf(other: Path): Boolean = other.toAbsolutePath.toString.startsWith(p.toAbsolutePath.toString)
+    def line(line: Int): String = Source.fromFile(p.toString).getLines().drop(line - 1).next
   }
 }

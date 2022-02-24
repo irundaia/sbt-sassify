@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
-package org.irundaia.sass
+package org.irundaia.sass.libsass
+
+import org.irundaia.sass.{Location, LogMessage, Severity}
+
+import java.nio.charset.StandardCharsets
+import java.nio.file.Paths
 
 sealed trait Output
 
@@ -24,7 +29,19 @@ case class SassError(
     message: String,
     file: String,
     line: Int,
-    column: Int) extends Output
+    column: Int) extends Output {
+  def toMessage(): LogMessage = LogMessage(
+    Severity.Error,
+    text,
+    Some(status)
+      .filter(_ == 1)
+      .map(_ => Location(
+        Paths.get(file),
+        line,
+        column
+      ))
+  )
+}
 
 case class SassOutput(
     css: String,
@@ -33,20 +50,20 @@ case class SassOutput(
 
 object Output {
   def apply(context: Context): Output = {
-    val instance = SassCompiler.libraryInstance
+    val instance = LibSassCompiler.libraryInstance
     val nativeContext = instance.sass_file_context_get_context(context.nativeContext)
 
     if (instance.sass_context_get_error_status(nativeContext) == 0) {
       SassOutput(
-        instance.sass_context_get_output_string(nativeContext).getString(0, "UTF-8"),
-        instance.sass_context_get_source_map_string(nativeContext).getString(0, "UTF-8"),
+        instance.sass_context_get_output_string(nativeContext).getString(0, StandardCharsets.UTF_8.name()),
+        instance.sass_context_get_source_map_string(nativeContext).getString(0, StandardCharsets.UTF_8.name()),
         instance.sass_context_get_included_files(nativeContext)
       )
     } else {
       SassError(
         instance.sass_context_get_error_status(nativeContext),
-        instance.sass_context_get_error_text(nativeContext),
-        instance.sass_context_get_error_message(nativeContext),
+        instance.sass_context_get_error_text(nativeContext).trim,
+        instance.sass_context_get_error_message(nativeContext).trim,
         instance.sass_context_get_error_file(nativeContext),
         instance.sass_context_get_error_line(nativeContext).intValue(),
         instance.sass_context_get_error_column(nativeContext).intValue()

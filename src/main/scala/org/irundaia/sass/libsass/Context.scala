@@ -14,8 +14,21 @@
  * limitations under the License.
  */
 
-package org.irundaia.sass
+package org.irundaia.sass.libsass
+
+import org.irundaia.sass.jna.SassLibrary
 
 import java.nio.file.Path
 
-case class CompilationSuccess(filesRead: Set[Path], filesWritten: Set[Path])
+case class Context(nativeContext: SassLibrary.Sass_File_Context) {
+
+  def options: Options = Options(this)
+
+  def cleanup(): Unit = {
+    LibSassCompiler.libraryInstance.sass_delete_file_context(nativeContext)
+  }
+}
+
+object Context {
+  def apply(file: Path): Context = Context(LibSassCompiler.libraryInstance.sass_make_file_context(file.toFile.getAbsolutePath))
+}

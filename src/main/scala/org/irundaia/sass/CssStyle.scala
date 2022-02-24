@@ -16,17 +16,7 @@
 
 package org.irundaia.sass
 
-import org.irundaia.sass.jna.SassLibrary
-
-sealed trait CssStyle {
-  def intValue: Int
-}
-case object Minified extends CssStyle {
-  override def intValue: Int = SassLibrary.Sass_Output_Style.SASS_STYLE_COMPRESSED
-}
-case object Maxified extends CssStyle {
-  override def intValue: Int = SassLibrary.Sass_Output_Style.SASS_STYLE_EXPANDED
-}
-case object Sassy extends CssStyle {
-  override def intValue: Int = SassLibrary.Sass_Output_Style.SASS_STYLE_NESTED
-}
+sealed trait CssStyle
+case object Minified extends CssStyle
+case object Maxified extends CssStyle
+case object Sassy extends CssStyle
