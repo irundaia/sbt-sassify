@@ -1,5 +1,27 @@
 # Should recompile a file when it has changed
 
+> set SassKeys.useDartSass := false
+
+> assets
+
+$ copy-file target/web/public/main/stylesheets/basic.css target/web/public/main/stylesheets/basic-old.css
+
+$ copy-file src/main/assets/stylesheets/basic.scss src/main/assets/stylesheets/_basic-old.scss
+
+$ copy-file src/main/assets/stylesheets/_basic-modified.scss src/main/assets/stylesheets/basic.scss
+
+$ sleep 1000
+
+> assets
+
+$ newer target/web/public/main/stylesheets/basic.css target/web/public/main/stylesheets/basic-old.css
+
+> set SassKeys.useDartSass := true
+
+> clean
+
+$ copy-file src/main/assets/stylesheets/_basic-old.scss src/main/assets/stylesheets/basic.scss
+
 > assets
 
 $ copy-file target/web/public/main/stylesheets/basic.css target/web/public/main/stylesheets/basic-old.css

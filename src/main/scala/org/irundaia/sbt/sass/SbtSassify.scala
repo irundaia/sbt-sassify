@@ -16,16 +16,16 @@
 
 package org.irundaia.sbt.sass
 
-import com.typesafe.sbt.web.Import.WebKeys._
-import com.typesafe.sbt.web.SbtWeb.autoImport._
-import com.typesafe.sbt.web._
-import com.typesafe.sbt.web.incremental._
+import com.typesafe.sbt.web.Import.WebKeys.*
+import com.typesafe.sbt.web.SbtWeb.autoImport.*
+import com.typesafe.sbt.web.*
+import com.typesafe.sbt.web.incremental.*
 import org.irundaia.sass.dart.DartSassCompiler
 import org.irundaia.sass.libsass.LibSassCompiler
-import org.irundaia.sass.{CompilationFailure, CompilationSuccess, CompilerSettings, CssStyle, SyntaxDetection, Severity => SassSeverity}
+import org.irundaia.sass.{CompilationFailure, CompilationSuccess, CompilerSettings, CssStyle, SyntaxDetection, Severity as SassSeverity}
 import org.irundaia.util.extensions.RichPath
-import sbt.Keys._
-import sbt._
+import sbt.Keys.*
+import sbt.*
 import xsbti.{Problem, Severity}
 
 import java.nio.file.Path
@@ -55,7 +55,7 @@ object SbtSassify extends AutoPlugin {
     }
   }
 
-  import autoImport.SassKeys._
+  import autoImport.SassKeys.*
 
   override lazy val buildSettings = Seq(
     cssStyle := Minified,
@@ -174,5 +174,5 @@ object SbtSassify extends AutoPlugin {
     }.dependsOn(Assets / WebKeys.webModules).value
   )
 
-  override def projectSettings: Seq[Setting[_]] = inConfig(Assets)(baseSbtSassifySettings)
+  override def projectSettings: Seq[Setting[?]] = inConfig(Assets)(baseSbtSassifySettings)
 }

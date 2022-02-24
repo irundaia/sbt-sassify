@@ -47,12 +47,12 @@ case class Success(css: String, sourceMap: SourceMap, loadedUrls: Set[Path], log
 case class Failure(logMessages: Seq[LogMessage])
 
 case class DartSassCompiler(settings: CompilerSettings) extends SassCompiler {
-
-  import DartSassCompiler._
+  import DartSassCompiler.*
 
   //noinspection ScalaStyle
   def determinePlatformPrefix: String = (System.getProperty("os.name").toLowerCase, System.getProperty("os.arch")) match {
-    case (os, _) if os.contains("mac") => "darwin"
+    case (os, arch) if os.contains("mac") && arch.equals("x86") => "darwin-x86"
+    case (os, _) if os.contains("mac") => "darwin-aarch64"
     case (os, arch) if os.contains("windows") && arch.equals("x86") => "win32-x86"
     case (os, _) if os.contains("windows") => "win32-x86-64"
     case (_, arch) if arch.equals("x86") => "linux-x86"

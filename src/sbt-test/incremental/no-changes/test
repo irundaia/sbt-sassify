@@ -1,5 +1,19 @@
 # Should not recompile files when nothing has changed
 
+> set SassKeys.useDartSass := false
+
+> assets
+
+$ copy-file target/web/public/main/stylesheets/basic.css target/web/public/main/stylesheets/basic-old.css
+
+> assets
+
+-$ newer target/web/public/main/stylesheets/basic.css target/web/public/main/stylesheets/basic-old.css
+
+> clean
+
+> set SassKeys.useDartSass := false
+
 > assets
 
 $ copy-file target/web/public/main/stylesheets/basic.css target/web/public/main/stylesheets/basic-old.css

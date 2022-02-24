@@ -30,7 +30,7 @@ case class SassError(
     file: String,
     line: Int,
     column: Int) extends Output {
-  def toMessage(): LogMessage = LogMessage(
+  def toMessage: LogMessage = LogMessage(
     Severity.Error,
     text,
     Some(status)

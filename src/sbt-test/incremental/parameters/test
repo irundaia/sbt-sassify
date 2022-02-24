@@ -1,10 +1,12 @@
 # Should recompile files when a parameter of sbt-sassify has changed
 
+> set SassKeys.useDartSass := false
+
 > assets
 
 $ copy-file target/web/public/main/stylesheets/basic.css target/web/public/main/stylesheets/basic-old.css
 
-> set SassKeys.embedSources := false
+> set SassKeys.useDartSass := true
 
 $ sleep 1000
 

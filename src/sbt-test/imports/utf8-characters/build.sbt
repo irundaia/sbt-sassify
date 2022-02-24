@@ -15,7 +15,7 @@ playVersion := {
 SassKeys.floatingPointPrecision := 5
 
 libraryDependencies ++= Seq(
-  "org.webjars.npm" % "font-awesome" % "4.7.0",
+  "org.webjars.npm" % "fortawesome__fontawesome-free" % "5.15.4",
   "org.webjars" %% "webjars-play" % playVersion.value
 )
 

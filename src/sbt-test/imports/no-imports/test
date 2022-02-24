@@ -1,5 +1,15 @@
 # Compile an scss file
 
+> set SassKeys.useDartSass := false
+
+> assets
+
+$ exists target/web/public/main/stylesheets/basic.css target/web/public/main/stylesheets/basic.css.map
+
+> clean
+
+> set SassKeys.useDartSass := true
+
 > assets
 
 $ exists target/web/public/main/stylesheets/basic.css target/web/public/main/stylesheets/basic.css.map

@@ -26,7 +26,7 @@ import java.nio.file.{Files, Path, Paths}
 import scala.collection.mutable
 
 case class LibSassCompiler(compilerSettings: CompilerSettings) extends SassCompiler {
-  import org.irundaia.sass.libsass.LibSassCompiler._
+  import org.irundaia.sass.libsass.LibSassCompiler.*
 
   override def compile(sass: Seq[Path],
                        sourceDir: Path,

@@ -24,16 +24,6 @@ import scala.annotation.tailrec
 import scala.collection.immutable.Seq
 
 object VarintFraming {
-  implicit class RichByteString(bs: ByteString) {
-    // TODO DELETE!
-    //    def prettyPrint(): String = bs
-    //      .map(b => String.format("%8s", (b & 0xFF).toBinaryString)
-    //        .replaceAll(" ", "0"))
-    //      .mkString("")
-    //      .grouped(4)
-    //      .mkString(" ")
-  }
-
   def protocol(): BidiFlow[ByteString, ByteString, ByteString, ByteString, NotUsed] =
     BidiFlow.fromFlowsMat(
       Flow[ByteString].map(bs => encode(bs.length) ++ bs),

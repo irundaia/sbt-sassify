@@ -1,2 +1,4 @@
-$fa-font-path: '/assets/lib/font-awesome/fonts';
-@import "lib/font-awesome/scss/font-awesome.scss";
+$fa-font-path: '/assets/lib/fortawesome__fontawesome-free/webfonts';
+@import "lib/fortawesome__fontawesome-free/scss/fontawesome.scss";
+@import "lib/fortawesome__fontawesome-free/scss/regular.scss";
+@import "lib/fortawesome__fontawesome-free/scss/solid.scss";

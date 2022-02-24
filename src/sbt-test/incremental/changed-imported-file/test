@@ -1,5 +1,27 @@
 # Should recompile a file when an imported file has changed
 
+> set SassKeys.useDartSass := false
+
+> assets
+
+$ copy-file target/web/public/main/stylesheets/basic.css target/web/public/main/stylesheets/basic-old.css
+
+$ copy-file src/main/assets/stylesheets/_import.scss src/main/assets/stylesheets/_import-old.scss
+
+$ copy-file src/main/assets/stylesheets/_import-modified.scss src/main/assets/stylesheets/_import.scss
+
+$ sleep 1000
+
+> assets
+
+$ newer target/web/public/main/stylesheets/basic.css target/web/public/main/stylesheets/basic-old.css
+
+> clean
+
+$ copy-file src/main/assets/stylesheets/_import-old.scss src/main/assets/stylesheets/_import.scss
+
+> set SassKeys.useDartSass := true
+
 > assets
 
 $ copy-file target/web/public/main/stylesheets/basic.css target/web/public/main/stylesheets/basic-old.css
