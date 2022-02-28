@@ -2,7 +2,9 @@
 cd /sass
 
 rm -r src/main/resources/darwin
+rm -r src/main/resources/darwin-x86-64
 mkdir -p src/main/resources/darwin
+mkdir -p src/main/resources/darwin-x86-64
 
 # *** Build libsass
 make -C src/native clean
@@ -21,6 +23,7 @@ BUILD=shared \
 
 # *** Copy to target location. Note that the makefile from libsass will output a .so file. Renaming it to .dylib is good enough.
 cp src/native/lib/libsass.so src/main/resources/darwin/libsass.dylib || exit 1
+cp src/native/lib/libsass.so src/main/resources/darwin-x86-64/libsass.dylib || exit 1
 
 # *** Cleanup
 cd /sass/src/native

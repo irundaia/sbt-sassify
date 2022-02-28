@@ -18,11 +18,12 @@ package org.irundaia.sass
 
 import java.nio.file.{Paths, Files}
 
-import org.scalatest.{FunSpec, MustMatchers}
+import org.scalatest.funspec.AnyFunSpec;
+import org.scalatest.matchers.must._;
 
 import scala.io.Source
 
-class SassCompilerTest extends FunSpec with MustMatchers {
+class SassCompilerTest extends AnyFunSpec with Matchers {
   val testDir = Files.createTempDirectory("sbt-sassify")
   val compilerSettings = CompilerSettings(Minified, true, true, Auto, Seq(), "", 10, "css")
 

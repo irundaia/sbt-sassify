@@ -16,8 +16,10 @@ javaOptions += "-Djna.nosys=true"
 addSbtPlugin("com.typesafe.sbt" % "sbt-web" % "1.4.4")
 
 libraryDependencies ++= Seq(
-  "org.scalatest" %% "scalatest" % "3.0.5" % "test",
-  "net.java.dev.jna" % "jna" % "5.5.0"
+  "org.scalatest" %% "scalatest" % "3.2.11" % "test",
+  "org.scalatest" %% "scalatest-mustmatchers" % "3.2.11" % "test",
+  "org.scalatest" %% "scalatest-funspec" % "3.2.11" % "test",
+  "net.java.dev.jna" % "jna" % "5.10.0"
 )
 
 // Compiler settings
@@ -32,7 +34,7 @@ scalacOptions ++= Seq(
   "-encoding",
   "UTF-8"
 )
-javacOptions ++= Seq("-source", "1.7", "-target", "1.7", "-Xlint")
+javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint")
 
 // Bintray settings
 bintrayOrganization in bintray := None
