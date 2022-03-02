@@ -117,3 +117,6 @@
 
 ## 1.5.1
 - Revert loading the bundled libsass manually
+
+## 1.5.2
+- Fix running sbt-sassify on apple sillicon macs
