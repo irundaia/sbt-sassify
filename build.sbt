@@ -4,10 +4,23 @@ lazy val sbtSassify = project
   .enablePlugins(ScriptedPlugin)
 
 name := "sbt-sassify"
-organization := "org.irundaia.sbt"
+organization := "io.github.irundaia"
 organizationName := "Han van Venrooij"
 startYear := Some(2018)
 sbtPlugin := true
+publishMavenStyle := true
+licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html"))
+homepage := Some(url("https://github.com/irundaia/sbt-sassify"))
+scmInfo := Some(ScmInfo(
+  url("https://github.com/irundaia/sbt-sassify"),
+  "scm:git@github.com:irundaia/sbt-sassify.git"
+))
+developers := List(Developer(
+  id="irundaia",
+  name="Han van Venrooij",
+  email="han.van.venrooij@icloud.com",
+  url=url("https://github.com/irundaia"),
+))
 
 fork in Test := false
 
@@ -36,13 +49,15 @@ scalacOptions ++= Seq(
 )
 javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint")
 
-// Bintray settings
-bintrayOrganization in bintray := None
-bintrayPackageLabels := Seq("sbt", "sbt-plugin", "sbt-sassify")
-bintrayRepository := "sbt-plugins"
-bintrayReleaseOnPublish in ThisBuild := false
-publishMavenStyle := false
-licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html"))
+// Sonatype settings
+import sbt.url
+import xerial.sbt.Sonatype.GitHubHosting
+ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
+sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
+publishTo := sonatypePublishToBundle.value
+sonatypeProjectHosting := Some(GitHubHosting("irundaia", "sbt-sassify", "han.van.venrooij@icloud.com"))
+sonatypeProfileName := "io.github.irundaia"
+sonatypeDefaultResolver := Opts.resolver.sonatypeStaging
 
 // Scalastyle settings
 lazy val testScalastyle = taskKey[Unit]("testScalastyle")
@@ -64,8 +79,8 @@ releaseProcess := Seq[ReleaseStep](
   commitReleaseVersion,
   tagRelease,
   publishArtifacts,
-  releaseStepCommandAndRemaining("^ publish"),
-  releaseStepCommandAndRemaining("bintrayRelease"),
+  releaseStepCommandAndRemaining("^publishSigned"),
+  releaseStepCommandAndRemaining("sonatypeBundleRelease"),
   setNextVersion,
   commitNextVersion,
   pushChanges)
