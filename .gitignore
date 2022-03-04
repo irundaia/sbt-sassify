@@ -2,3 +2,4 @@
 .idea
 #sbt
 target
+.bsp
