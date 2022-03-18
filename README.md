@@ -21,7 +21,7 @@ This plugin has been tested against sbt-web and the Play framework versions 1.4.
 To use the `sbt-sassify` plugin you can include the plugin in `project/plugins.sbt` or `project/sbt-sassify.sbt` like this:
 
 ```scala
-addSbtPlugin("org.irundaia.sbt" % "sbt-sassify" % "1.5.1")
+addSbtPlugin("io.github.irundaia" % "sbt-sassify" % "1.5.2")
 ```
 
 ### Directory structure
