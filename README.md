@@ -14,14 +14,14 @@ The sbt-sassify plugin supports the following operating systems:
 - Windows (32/64 bit)
 - Linux (32/64 bit)
 
-This plugin has been tested against sbt-web and the Play framework versions 1.4.1 and 2.4.3+ respectively. Additionally, it requires Java 7.
+This plugin has been tested against sbt-web and the Play framework versions 1.5.2 and 3.0.0+ respectively. Additionally, it requires Java 8.
 
 ## Usage
 
 To use the `sbt-sassify` plugin you can include the plugin in `project/plugins.sbt` or `project/sbt-sassify.sbt` like this:
 
 ```scala
-addSbtPlugin("io.github.irundaia" % "sbt-sassify" % "1.5.2")
+addSbtPlugin("io.github.irundaia" % "sbt-sassify" % "1.6.0")
 ```
 
 ### Directory structure

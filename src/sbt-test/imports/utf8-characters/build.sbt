@@ -3,20 +3,13 @@ import org.irundaia.sbt.sass._
 
 lazy val root = (project in file(".")).enablePlugins(SbtWeb)
 
-lazy val playVersion = settingKey[String]("Play version in relation to current Scala Version")
-
-playVersion := {
-  CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, 10)) => "2.4.0-2"
-    case Some((2, n)) if n > 10 => "2.6.2"
-  }
-}
-
 SassKeys.floatingPointPrecision := 5
+
+scalaVersion := "2.13.12"
 
 libraryDependencies ++= Seq(
   "org.webjars.npm" % "font-awesome" % "4.7.0",
-  "org.webjars" %% "webjars-play" % playVersion.value
+  "org.webjars" %% "webjars-play" % "3.0.1"
 )
 
 val testOutput = taskKey[Unit]("Tests whether the generated output matches the reference output")
